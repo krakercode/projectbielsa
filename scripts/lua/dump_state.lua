@@ -12,14 +12,21 @@
 -- which hasn't been done yet. Once that pointer is found, extend this file
 -- with a loop over the array instead of a single dumpRecord() call per type.
 --
--- UNTESTED: written without a live Cheat Engine session to verify against.
--- The pointer-chain resolution follows Cheat Engine's standard multi-level
--- offset semantics (dereference at each offset except the last), matching how
--- the base table's own entries resolve -- but this has not actually been run
--- yet. First things to check when testing live: do the "String" fields
--- (player/club names) decode correctly as ASCII/UTF-8, or do they need
--- widechar=true / a different offset (FM may store names as length-prefixed
--- or wide-char strings)? Fix readByType's "String" branch if so.
+-- VERIFIED LIVE 2026-08-14 against a real save (Aston Villa, 27 Jul 2020):
+-- every field below reads back and matches what FM shows on the player
+-- profile screen. Two things learned in that first live run, both fixed:
+--   * Offsets are emitted in APPLICATION order by parse_ct.js, which reverses
+--     the order fm.CT stores them in (CE writes <Offsets> innermost-first).
+--     Getting this backwards silently nils out every multi-level chain --
+--     all names, all contract fields -- while single-offset fields still work.
+--   * Strings are plain single-byte, zero-terminated (fm.CT has Unicode=0),
+--     so readString(addr, len, false) is correct -- no widechar needed.
+--
+-- Attribute values here are FM's INTERNAL scale, not the 1-20 the UI shows:
+-- displayed = round(internal / 5), e.g. Grealish's Dribbling is 85 internally
+-- and 17 on screen. CA/PA are already on their native 1-200 scale. Condition
+-- and the reputation fields are 0-10000. Consumers of this JSON must do their
+-- own conversion; the dump deliberately stays raw.
 --
 -- Requires the base table's "-----[==Features==]-----" script to be active
 -- first (it allocates the pCurrentPlayer/pCurrentClub/pCurrentStaff globals
@@ -32,21 +39,21 @@ FIELDS.CurrentPlayer = {
     { path = {"_", "Dont touch", "vt"}, offsets = {0x270}, vtype = "8 Bytes" },
     { path = {"_", "Dont touch", "Row ID"}, offsets = {0x278}, vtype = "4 Bytes" },
     { path = {"_", "Dont touch", "UID"}, offsets = {0x27C}, vtype = "4 Bytes" },
-    { path = {"Player Info", "Name (Read Only)", "First Name"}, offsets = {0x4, 0x0, 0x2C8}, vtype = "String" },
-    { path = {"Player Info", "Name (Read Only)", "Last Name"}, offsets = {0x4, 0x0, 0x2D0}, vtype = "String" },
-    { path = {"Player Info", "Name (Read Only)", "Full Name"}, offsets = {0x4, 0x2B8}, vtype = "String" },
-    { path = {"Player Info", "Nationality (Read Only)", "Full Name"}, offsets = {0x4, 0xB8, 0x2E0}, vtype = "String" },
-    { path = {"Player Info", "Nationality (Read Only)", "Shortname"}, offsets = {0x4, 0xC0, 0x2E0}, vtype = "String" },
-    { path = {"Player Info", "Nationality (Read Only)", "3 Letter Name"}, offsets = {0x4, 0xD0, 0x2E0}, vtype = "String" },
-    { path = {"Player Info", "Team Club (Read Only)", "Name"}, offsets = {0x4, 0xB8, 0x30, 0x88}, vtype = "String" },
+    { path = {"Player Info", "Name (Read Only)", "First Name"}, offsets = {0x2C8, 0x0, 0x4}, vtype = "String" },
+    { path = {"Player Info", "Name (Read Only)", "Last Name"}, offsets = {0x2D0, 0x0, 0x4}, vtype = "String" },
+    { path = {"Player Info", "Name (Read Only)", "Full Name"}, offsets = {0x2B8, 0x4}, vtype = "String" },
+    { path = {"Player Info", "Nationality (Read Only)", "Full Name"}, offsets = {0x2E0, 0xB8, 0x4}, vtype = "String" },
+    { path = {"Player Info", "Nationality (Read Only)", "Shortname"}, offsets = {0x2E0, 0xC0, 0x4}, vtype = "String" },
+    { path = {"Player Info", "Nationality (Read Only)", "3 Letter Name"}, offsets = {0x2E0, 0xD0, 0x4}, vtype = "String" },
+    { path = {"Player Info", "Team Club (Read Only)", "Name"}, offsets = {0x88, 0x30, 0xB8, 0x4}, vtype = "String" },
     { path = {"Player Info", "Birth Year"}, offsets = {0x2B6}, vtype = "2 Bytes" },
     { path = {"Player Info", "Weight (kg)"}, offsets = {0xA4}, vtype = "2 Bytes" },
     { path = {"Player Info", "Height (cm)"}, offsets = {0xA6}, vtype = "2 Bytes" },
     { path = {"Player Info", "Value (£)"}, offsets = {0x128}, vtype = "4 Bytes" },
-    { path = {"Contract", "Wage Per Week (£)"}, offsets = {0x18, 0x338}, vtype = "4 Bytes" },
-    { path = {"Contract", "Started Year"}, offsets = {0x3E, 0x338}, vtype = "2 Bytes" },
-    { path = {"Contract", "Expires Year"}, offsets = {0x42, 0x338}, vtype = "2 Bytes" },
-    { path = {"Contract", "Join Year"}, offsets = {0x46, 0x338}, vtype = "2 Bytes" },
+    { path = {"Contract", "Wage Per Week (£)"}, offsets = {0x338, 0x18}, vtype = "4 Bytes" },
+    { path = {"Contract", "Started Year"}, offsets = {0x338, 0x3E}, vtype = "2 Bytes" },
+    { path = {"Contract", "Expires Year"}, offsets = {0x338, 0x42}, vtype = "2 Bytes" },
+    { path = {"Contract", "Join Year"}, offsets = {0x338, 0x46}, vtype = "2 Bytes" },
     { path = {"Other", "Fitness"}, offsets = {0x1F0}, vtype = "2 Bytes" },
     { path = {"Other", "Condition"}, offsets = {0x1F4}, vtype = "2 Bytes" },
     { path = {"Other", "Jadedness"}, offsets = {0x1F2}, vtype = "2 Bytes" },
@@ -140,43 +147,43 @@ FIELDS.CurrentClub = {
     { path = {"_", "Dont touch", "pClub"}, offsets = {0x0}, vtype = "8 Bytes" },
     { path = {"_", "Dont touch", "Row ID"}, offsets = {0x8}, vtype = "4 Bytes" },
     { path = {"_", "Dont touch", "UID"}, offsets = {0xC}, vtype = "4 Bytes" },
-    { path = {"Club Info", "Full Name"}, offsets = {0x4, 0xB8}, vtype = "String" },
-    { path = {"Club Info", "Short Name"}, offsets = {0x4, 0xC0}, vtype = "String" },
-    { path = {"Club Info", "Nickname"}, offsets = {0x4, 0x90, 0xB0}, vtype = "String" },
-    { path = {"Facilities", "Stadium", "Name"}, offsets = {0x4, 0x40, 0x78, 0x0, 0x18}, vtype = "String" },
-    { path = {"Facilities", "Stadium", "Year Built"}, offsets = {0x22, 0x78, 0x0, 0x18}, vtype = "2 Bytes" },
-    { path = {"Facilities", "Stadium", "Capacity"}, offsets = {0x6C, 0x78, 0x0, 0x18}, vtype = "4 Bytes" },
-    { path = {"Facilities", "Stadium", "Capacity (seated)"}, offsets = {0x70, 0x78, 0x0, 0x18}, vtype = "4 Bytes" },
-    { path = {"Facilities", "Stadium", "Avg. Attendance"}, offsets = {0x68, 0xB0}, vtype = "4 Bytes" },
-    { path = {"Facilities", "Stadium", "Min. Attendance"}, offsets = {0x6C, 0xB0}, vtype = "4 Bytes" },
-    { path = {"Facilities", "Stadium", "Max. Attendance"}, offsets = {0x70, 0xB0}, vtype = "4 Bytes" },
-    { path = {"Facilities", "Corporate Facilities"}, offsets = {0x88D, 0x148}, vtype = "Byte" },
-    { path = {"Facilities", "Training Facilities"}, offsets = {0xE8, 0xF8}, vtype = "Byte" },
-    { path = {"Facilities", "Youth Facilities"}, offsets = {0xF3, 0xF8}, vtype = "Byte" },
-    { path = {"Facilities", "Youth Importance"}, offsets = {0xE1, 0xF8}, vtype = "Byte" },
-    { path = {"Facilities", "Junior Coaching"}, offsets = {0xF4, 0xF8}, vtype = "Byte" },
-    { path = {"Facilities", "Youth Recruitment"}, offsets = {0xF5, 0xF8}, vtype = "Byte" },
-    { path = {"Finances", "Balance (£)"}, offsets = {0x14, 0x148}, vtype = "4 Bytes" },
-    { path = {"Finances", "Transfer Budget (£)"}, offsets = {0x7A4, 0x148}, vtype = "4 Bytes" },
-    { path = {"Finances", "Income % Available"}, offsets = {0x7B0, 0x148}, vtype = "4 Bytes" },
-    { path = {"Finances", "Weekly Wage Budget (£)"}, offsets = {0x7E8, 0x148}, vtype = "4 Bytes" },
-    { path = {"Finances", "Wage Budget Used (£)"}, offsets = {0x7F4, 0x148}, vtype = "4 Bytes" },
-    { path = {"Finances", "Avg. Match Ticker Price (£)"}, offsets = {0x18, 0x148}, vtype = "Float" },
-    { path = {"Finances", "Avg. Season Ticker Price (£)"}, offsets = {0x1C, 0x148}, vtype = "Float" },
-    { path = {"Finances", "Match Ticket Price Ratio (£)"}, offsets = {0x20, 0x148}, vtype = "Float" },
-    { path = {"Finances", "Season Ticket Price Ratio (£)"}, offsets = {0x24, 0x148}, vtype = "Float" },
-    { path = {"Finances", "Season Ticket Change Ratio (£)"}, offsets = {0x28, 0x148}, vtype = "Float" },
-    { path = {"Finances", "Sugar Daddy"}, offsets = {0x3C, 0x148}, vtype = "Byte" },
+    { path = {"Club Info", "Full Name"}, offsets = {0xB8, 0x4}, vtype = "String" },
+    { path = {"Club Info", "Short Name"}, offsets = {0xC0, 0x4}, vtype = "String" },
+    { path = {"Club Info", "Nickname"}, offsets = {0xB0, 0x90, 0x4}, vtype = "String" },
+    { path = {"Facilities", "Stadium", "Name"}, offsets = {0x18, 0x0, 0x78, 0x40, 0x4}, vtype = "String" },
+    { path = {"Facilities", "Stadium", "Year Built"}, offsets = {0x18, 0x0, 0x78, 0x22}, vtype = "2 Bytes" },
+    { path = {"Facilities", "Stadium", "Capacity"}, offsets = {0x18, 0x0, 0x78, 0x6C}, vtype = "4 Bytes" },
+    { path = {"Facilities", "Stadium", "Capacity (seated)"}, offsets = {0x18, 0x0, 0x78, 0x70}, vtype = "4 Bytes" },
+    { path = {"Facilities", "Stadium", "Avg. Attendance"}, offsets = {0xB0, 0x68}, vtype = "4 Bytes" },
+    { path = {"Facilities", "Stadium", "Min. Attendance"}, offsets = {0xB0, 0x6C}, vtype = "4 Bytes" },
+    { path = {"Facilities", "Stadium", "Max. Attendance"}, offsets = {0xB0, 0x70}, vtype = "4 Bytes" },
+    { path = {"Facilities", "Corporate Facilities"}, offsets = {0x148, 0x88D}, vtype = "Byte" },
+    { path = {"Facilities", "Training Facilities"}, offsets = {0xF8, 0xE8}, vtype = "Byte" },
+    { path = {"Facilities", "Youth Facilities"}, offsets = {0xF8, 0xF3}, vtype = "Byte" },
+    { path = {"Facilities", "Youth Importance"}, offsets = {0xF8, 0xE1}, vtype = "Byte" },
+    { path = {"Facilities", "Junior Coaching"}, offsets = {0xF8, 0xF4}, vtype = "Byte" },
+    { path = {"Facilities", "Youth Recruitment"}, offsets = {0xF8, 0xF5}, vtype = "Byte" },
+    { path = {"Finances", "Balance (£)"}, offsets = {0x148, 0x14}, vtype = "4 Bytes" },
+    { path = {"Finances", "Transfer Budget (£)"}, offsets = {0x148, 0x7A4}, vtype = "4 Bytes" },
+    { path = {"Finances", "Income % Available"}, offsets = {0x148, 0x7B0}, vtype = "4 Bytes" },
+    { path = {"Finances", "Weekly Wage Budget (£)"}, offsets = {0x148, 0x7E8}, vtype = "4 Bytes" },
+    { path = {"Finances", "Wage Budget Used (£)"}, offsets = {0x148, 0x7F4}, vtype = "4 Bytes" },
+    { path = {"Finances", "Avg. Match Ticker Price (£)"}, offsets = {0x148, 0x18}, vtype = "Float" },
+    { path = {"Finances", "Avg. Season Ticker Price (£)"}, offsets = {0x148, 0x1C}, vtype = "Float" },
+    { path = {"Finances", "Match Ticket Price Ratio (£)"}, offsets = {0x148, 0x20}, vtype = "Float" },
+    { path = {"Finances", "Season Ticket Price Ratio (£)"}, offsets = {0x148, 0x24}, vtype = "Float" },
+    { path = {"Finances", "Season Ticket Change Ratio (£)"}, offsets = {0x148, 0x28}, vtype = "Float" },
+    { path = {"Finances", "Sugar Daddy"}, offsets = {0x148, 0x3C}, vtype = "Byte" },
 }
 
 FIELDS.CurrentStaff = {
     { path = {"_", "Dont touch", "pStaff"}, offsets = {0x0}, vtype = "8 Bytes" },
     { path = {"_", "Dont touch", "Row ID"}, offsets = {0xF0}, vtype = "4 Bytes" },
     { path = {"_", "Dont touch", "UID"}, offsets = {0xF4}, vtype = "4 Bytes" },
-    { path = {"Info", "First Name"}, offsets = {0x4, 0x0, 0x140}, vtype = "String" },
-    { path = {"Info", "Last Name"}, offsets = {0x4, 0x0, 0x148}, vtype = "String" },
-    { path = {"Info", "Nationality"}, offsets = {0x4, 0xB8, 0x158}, vtype = "String" },
-    { path = {"Info", "Place Of Birth"}, offsets = {0x4, 0x18, 0x170}, vtype = "String" },
+    { path = {"Info", "First Name"}, offsets = {0x140, 0x0, 0x4}, vtype = "String" },
+    { path = {"Info", "Last Name"}, offsets = {0x148, 0x0, 0x4}, vtype = "String" },
+    { path = {"Info", "Nationality"}, offsets = {0x158, 0xB8, 0x4}, vtype = "String" },
+    { path = {"Info", "Place Of Birth"}, offsets = {0x170, 0x18, 0x4}, vtype = "String" },
     { path = {"Personality", "Adaptability"}, offsets = {0x160}, vtype = "Byte" },
     { path = {"Personality", "Ambition"}, offsets = {0x161}, vtype = "Byte" },
     { path = {"Personality", "Loyalty"}, offsets = {0x162}, vtype = "Byte" },
@@ -185,19 +192,19 @@ FIELDS.CurrentStaff = {
     { path = {"Personality", "Sportsmanship"}, offsets = {0x165}, vtype = "Byte" },
     { path = {"Personality", "Temperament"}, offsets = {0x166}, vtype = "Byte" },
     { path = {"Personality", "Controversy"}, offsets = {0x167}, vtype = "Byte" },
-    { path = {"Job Attributes", "Director Of Football"}, offsets = {0x8, 0x1E8}, vtype = "Byte" },
-    { path = {"Job Attributes", "Technical Director"}, offsets = {0xD, 0x1E8}, vtype = "Byte" },
-    { path = {"Job Attributes", "Manager"}, offsets = {0x0, 0x1E8}, vtype = "Byte" },
-    { path = {"Job Attributes", "Assistant Manager"}, offsets = {0x1, 0x1E8}, vtype = "Byte" },
-    { path = {"Job Attributes", "Coach"}, offsets = {0x2, 0x1E8}, vtype = "Byte" },
-    { path = {"Job Attributes", "Fitness Coach"}, offsets = {0x6, 0x1E8}, vtype = "Byte" },
-    { path = {"Job Attributes", "GK Coach"}, offsets = {0x5, 0x1E8}, vtype = "Byte" },
-    { path = {"Job Attributes", "Head of Youth Development"}, offsets = {0x9, 0x1E8}, vtype = "Byte" },
-    { path = {"Job Attributes", "Scout"}, offsets = {0x4, 0x1E8}, vtype = "Byte" },
-    { path = {"Job Attributes", "Analyst"}, offsets = {0xB, 0x1E8}, vtype = "Byte" },
-    { path = {"Job Attributes", "Loan Manager"}, offsets = {0xA, 0x1E8}, vtype = "Byte" },
-    { path = {"Job Attributes", "Physio"}, offsets = {0x3, 0x1E8}, vtype = "Byte" },
-    { path = {"Job Attributes", "Sports Scientist"}, offsets = {0xC, 0x1E8}, vtype = "Byte" },
+    { path = {"Job Attributes", "Director Of Football"}, offsets = {0x1E8, 0x8}, vtype = "Byte" },
+    { path = {"Job Attributes", "Technical Director"}, offsets = {0x1E8, 0xD}, vtype = "Byte" },
+    { path = {"Job Attributes", "Manager"}, offsets = {0x1E8, 0x0}, vtype = "Byte" },
+    { path = {"Job Attributes", "Assistant Manager"}, offsets = {0x1E8, 0x1}, vtype = "Byte" },
+    { path = {"Job Attributes", "Coach"}, offsets = {0x1E8, 0x2}, vtype = "Byte" },
+    { path = {"Job Attributes", "Fitness Coach"}, offsets = {0x1E8, 0x6}, vtype = "Byte" },
+    { path = {"Job Attributes", "GK Coach"}, offsets = {0x1E8, 0x5}, vtype = "Byte" },
+    { path = {"Job Attributes", "Head of Youth Development"}, offsets = {0x1E8, 0x9}, vtype = "Byte" },
+    { path = {"Job Attributes", "Scout"}, offsets = {0x1E8, 0x4}, vtype = "Byte" },
+    { path = {"Job Attributes", "Analyst"}, offsets = {0x1E8, 0xB}, vtype = "Byte" },
+    { path = {"Job Attributes", "Loan Manager"}, offsets = {0x1E8, 0xA}, vtype = "Byte" },
+    { path = {"Job Attributes", "Physio"}, offsets = {0x1E8, 0x3}, vtype = "Byte" },
+    { path = {"Job Attributes", "Sports Scientist"}, offsets = {0x1E8, 0xC}, vtype = "Byte" },
     { path = {"Attributes", "CA"}, offsets = {0xD2}, vtype = "2 Bytes" },
     { path = {"Attributes", "PA"}, offsets = {0xD4}, vtype = "2 Bytes" },
     { path = {"Attributes", "Analysis", "Analysing Data"}, offsets = {0x44}, vtype = "Byte" },
@@ -249,10 +256,10 @@ FIELDS.CurrentStaff = {
     { path = {"Attributes", "Mental", "Level of Discipline"}, offsets = {0x1C}, vtype = "Byte" },
     { path = {"Attributes", "Mental", "Determination"}, offsets = {0x25}, vtype = "Byte" },
     { path = {"Attributes", "Mental", "Motivating"}, offsets = {0x37}, vtype = "Byte" },
-    { path = {"Contract", "Wage Per Week (£)"}, offsets = {0x18, 0x1B0}, vtype = "4 Bytes" },
-    { path = {"Contract", "Started Year"}, offsets = {0x3E, 0x1B0}, vtype = "2 Bytes" },
-    { path = {"Contract", "Expires Year"}, offsets = {0x42, 0x1B0}, vtype = "2 Bytes" },
-    { path = {"Contract", "Join Year"}, offsets = {0x46, 0x1B0}, vtype = "2 Bytes" },
+    { path = {"Contract", "Wage Per Week (£)"}, offsets = {0x1B0, 0x18}, vtype = "4 Bytes" },
+    { path = {"Contract", "Started Year"}, offsets = {0x1B0, 0x3E}, vtype = "2 Bytes" },
+    { path = {"Contract", "Expires Year"}, offsets = {0x1B0, 0x42}, vtype = "2 Bytes" },
+    { path = {"Contract", "Join Year"}, offsets = {0x1B0, 0x46}, vtype = "2 Bytes" },
 }
 
 local function resolvePointerChain(symbolName, offsets)

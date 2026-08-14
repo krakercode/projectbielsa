@@ -44,14 +44,21 @@ const template = `-- Phase 1: full state dump for the currently-selected player/
 -- which hasn't been done yet. Once that pointer is found, extend this file
 -- with a loop over the array instead of a single dumpRecord() call per type.
 --
--- UNTESTED: written without a live Cheat Engine session to verify against.
--- The pointer-chain resolution follows Cheat Engine's standard multi-level
--- offset semantics (dereference at each offset except the last), matching how
--- the base table's own entries resolve -- but this has not actually been run
--- yet. First things to check when testing live: do the "String" fields
--- (player/club names) decode correctly as ASCII/UTF-8, or do they need
--- widechar=true / a different offset (FM may store names as length-prefixed
--- or wide-char strings)? Fix readByType's "String" branch if so.
+-- VERIFIED LIVE 2026-08-14 against a real save (Aston Villa, 27 Jul 2020):
+-- every field below reads back and matches what FM shows on the player
+-- profile screen. Two things learned in that first live run, both fixed:
+--   * Offsets are emitted in APPLICATION order by parse_ct.js, which reverses
+--     the order fm.CT stores them in (CE writes <Offsets> innermost-first).
+--     Getting this backwards silently nils out every multi-level chain --
+--     all names, all contract fields -- while single-offset fields still work.
+--   * Strings are plain single-byte, zero-terminated (fm.CT has Unicode=0),
+--     so readString(addr, len, false) is correct -- no widechar needed.
+--
+-- Attribute values here are FM's INTERNAL scale, not the 1-20 the UI shows:
+-- displayed = round(internal / 5), e.g. Grealish's Dribbling is 85 internally
+-- and 17 on screen. CA/PA are already on their native 1-200 scale. Condition
+-- and the reputation fields are 0-10000. Consumers of this JSON must do their
+-- own conversion; the dump deliberately stays raw.
 --
 -- Requires the base table's "-----[==Features==]-----" script to be active
 -- first (it allocates the pCurrentPlayer/pCurrentClub/pCurrentStaff globals

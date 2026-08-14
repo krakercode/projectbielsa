@@ -64,7 +64,17 @@ function flatten(entries, breadcrumb, out) {
     const bc = e.desc ? [...breadcrumb, e.desc] : breadcrumb;
     const isLeaf = e.address && e.varType && e.varType !== 'Auto Assembler Script' && e.offsets.length > 0;
     if (isLeaf) {
-      out.push({ path: bc, address: e.address, offsets: e.offsets, varType: e.varType, showAsHex: e.showAsHex, showAsSigned: e.showAsSigned });
+      // Cheat Engine stores <Offsets> innermost-first -- the reverse of the
+      // order they're applied in. For "Wage Per Week" the table lists
+      // [18, 338], but the actual chain is [[pCurrentPlayer] + 338] + 18:
+      // 338 locates the contract object on the player, 18 is the wage field
+      // inside it. Emit them in application order so consumers can just walk
+      // the array forwards. (Confirmed live 2026-08-14: with the raw order,
+      // every multi-level chain -- all names, all contract fields -- resolved
+      // to garbage and read back nil, while single-offset fields worked
+      // because reversing a one-element list is a no-op.)
+      const offsets = e.offsets.slice().reverse();
+      out.push({ path: bc, address: e.address, offsets, varType: e.varType, showAsHex: e.showAsHex, showAsSigned: e.showAsSigned });
     }
     if (e.children && e.children.length) flatten(e.children, bc, out);
   }

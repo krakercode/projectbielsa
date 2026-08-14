@@ -64,9 +64,9 @@
       ],
       "address": "pCurrentPlayer",
       "offsets": [
-        "4",
+        "2c8",
         "0",
-        "2c8"
+        "4"
       ],
       "varType": "String",
       "showAsHex": false,
@@ -80,9 +80,9 @@
       ],
       "address": "pCurrentPlayer",
       "offsets": [
-        "4",
+        "2d0",
         "0",
-        "2d0"
+        "4"
       ],
       "varType": "String",
       "showAsHex": false,
@@ -96,8 +96,8 @@
       ],
       "address": "pCurrentPlayer",
       "offsets": [
-        "4",
-        "2b8"
+        "2b8",
+        "4"
       ],
       "varType": "String",
       "showAsHex": false,
@@ -111,9 +111,9 @@
       ],
       "address": "pCurrentPlayer",
       "offsets": [
-        "4",
+        "2e0",
         "b8",
-        "2e0"
+        "4"
       ],
       "varType": "String",
       "showAsHex": false,
@@ -127,9 +127,9 @@
       ],
       "address": "pCurrentPlayer",
       "offsets": [
-        "4",
+        "2e0",
         "C0",
-        "2e0"
+        "4"
       ],
       "varType": "String",
       "showAsHex": false,
@@ -143,9 +143,9 @@
       ],
       "address": "pCurrentPlayer",
       "offsets": [
-        "4",
+        "2e0",
         "D0",
-        "2e0"
+        "4"
       ],
       "varType": "String",
       "showAsHex": false,
@@ -159,10 +159,10 @@
       ],
       "address": "pCurrentPlayer",
       "offsets": [
-        "4",
-        "b8",
+        "88",
         "30",
-        "88"
+        "b8",
+        "4"
       ],
       "varType": "String",
       "showAsHex": false,
@@ -227,8 +227,8 @@
       ],
       "address": "pCurrentPlayer",
       "offsets": [
-        "18",
-        "338"
+        "338",
+        "18"
       ],
       "varType": "4 Bytes",
       "showAsHex": false,
@@ -241,8 +241,8 @@
       ],
       "address": "pCurrentPlayer",
       "offsets": [
-        "3e",
-        "338"
+        "338",
+        "3e"
       ],
       "varType": "2 Bytes",
       "showAsHex": false,
@@ -255,8 +255,8 @@
       ],
       "address": "pCurrentPlayer",
       "offsets": [
-        "42",
-        "338"
+        "338",
+        "42"
       ],
       "varType": "2 Bytes",
       "showAsHex": false,
@@ -269,8 +269,8 @@
       ],
       "address": "pCurrentPlayer",
       "offsets": [
-        "46",
-        "338"
+        "338",
+        "46"
       ],
       "varType": "2 Bytes",
       "showAsHex": false,
@@ -1512,8 +1512,8 @@
       ],
       "address": "pCurrentClub",
       "offsets": [
-        "4",
-        "B8"
+        "B8",
+        "4"
       ],
       "varType": "String",
       "showAsHex": false,
@@ -1526,8 +1526,8 @@
       ],
       "address": "pCurrentClub",
       "offsets": [
-        "4",
-        "c0"
+        "c0",
+        "4"
       ],
       "varType": "String",
       "showAsHex": false,
@@ -1540,9 +1540,9 @@
       ],
       "address": "pCurrentClub",
       "offsets": [
-        "4",
+        "b0",
         "90",
-        "b0"
+        "4"
       ],
       "varType": "String",
       "showAsHex": false,
@@ -1556,11 +1556,11 @@
       ],
       "address": "pCurrentClub",
       "offsets": [
-        "4",
-        "40",
-        "78",
+        "18",
         "0",
-        "18"
+        "78",
+        "40",
+        "4"
       ],
       "varType": "String",
       "showAsHex": false,
@@ -1574,10 +1574,10 @@
       ],
       "address": "pCurrentClub",
       "offsets": [
-        "22",
-        "78",
+        "18",
         "0",
-        "18"
+        "78",
+        "22"
       ],
       "varType": "2 Bytes",
       "showAsHex": false,
@@ -1591,10 +1591,10 @@
       ],
       "address": "pCurrentClub",
       "offsets": [
-        "6C",
-        "78",
+        "18",
         "0",
-        "18"
+        "78",
+        "6C"
       ],
       "varType": "4 Bytes",
       "showAsHex": false,
@@ -1608,10 +1608,10 @@
       ],
       "address": "pCurrentClub",
       "offsets": [
-        "70",
-        "78",
+        "18",
         "0",
-        "18"
+        "78",
+        "70"
       ],
       "varType": "4 Bytes",
       "showAsHex": false,
@@ -1625,8 +1625,8 @@
       ],
       "address": "pCurrentClub",
       "offsets": [
-        "68",
-        "b0"
+        "b0",
+        "68"
       ],
       "varType": "4 Bytes",
       "showAsHex": false,
@@ -1640,8 +1640,8 @@
       ],
       "address": "pCurrentClub",
       "offsets": [
-        "6C",
-        "b0"
+        "b0",
+        "6C"
       ],
       "varType": "4 Bytes",
       "showAsHex": false,
@@ -1655,8 +1655,8 @@
       ],
       "address": "pCurrentClub",
       "offsets": [
-        "70",
-        "b0"
+        "b0",
+        "70"
       ],
       "varType": "4 Bytes",
       "showAsHex": false,
@@ -1669,8 +1669,8 @@
       ],
       "address": "pCurrentClub",
       "offsets": [
-        "88d",
-        "148"
+        "148",
+        "88d"
       ],
       "varType": "Byte",
       "showAsHex": false,
@@ -1683,8 +1683,8 @@
       ],
       "address": "pCurrentClub",
       "offsets": [
-        "e8",
-        "f8"
+        "f8",
+        "e8"
       ],
       "varType": "Byte",
       "showAsHex": false,
@@ -1697,8 +1697,8 @@
       ],
       "address": "pCurrentClub",
       "offsets": [
-        "f3",
-        "f8"
+        "f8",
+        "f3"
       ],
       "varType": "Byte",
       "showAsHex": false,
@@ -1711,8 +1711,8 @@
       ],
       "address": "pCurrentClub",
       "offsets": [
-        "e1",
-        "f8"
+        "f8",
+        "e1"
       ],
       "varType": "Byte",
       "showAsHex": false,
@@ -1725,8 +1725,8 @@
       ],
       "address": "pCurrentClub",
       "offsets": [
-        "f4",
-        "f8"
+        "f8",
+        "f4"
       ],
       "varType": "Byte",
       "showAsHex": false,
@@ -1739,8 +1739,8 @@
       ],
       "address": "pCurrentClub",
       "offsets": [
-        "f5",
-        "f8"
+        "f8",
+        "f5"
       ],
       "varType": "Byte",
       "showAsHex": false,
@@ -1753,8 +1753,8 @@
       ],
       "address": "pCurrentClub",
       "offsets": [
-        "14",
-        "148"
+        "148",
+        "14"
       ],
       "varType": "4 Bytes",
       "showAsHex": false,
@@ -1767,8 +1767,8 @@
       ],
       "address": "pCurrentClub",
       "offsets": [
-        "7a4",
-        "148"
+        "148",
+        "7a4"
       ],
       "varType": "4 Bytes",
       "showAsHex": false,
@@ -1781,8 +1781,8 @@
       ],
       "address": "pCurrentClub",
       "offsets": [
-        "7b0",
-        "148"
+        "148",
+        "7b0"
       ],
       "varType": "4 Bytes",
       "showAsHex": false,
@@ -1795,8 +1795,8 @@
       ],
       "address": "pCurrentClub",
       "offsets": [
-        "7e8",
-        "148"
+        "148",
+        "7e8"
       ],
       "varType": "4 Bytes",
       "showAsHex": false,
@@ -1809,8 +1809,8 @@
       ],
       "address": "pCurrentClub",
       "offsets": [
-        "7F4",
-        "148"
+        "148",
+        "7F4"
       ],
       "varType": "4 Bytes",
       "showAsHex": false,
@@ -1823,8 +1823,8 @@
       ],
       "address": "pCurrentClub",
       "offsets": [
-        "18",
-        "148"
+        "148",
+        "18"
       ],
       "varType": "Float",
       "showAsHex": false,
@@ -1837,8 +1837,8 @@
       ],
       "address": "pCurrentClub",
       "offsets": [
-        "1C",
-        "148"
+        "148",
+        "1C"
       ],
       "varType": "Float",
       "showAsHex": false,
@@ -1851,8 +1851,8 @@
       ],
       "address": "pCurrentClub",
       "offsets": [
-        "20",
-        "148"
+        "148",
+        "20"
       ],
       "varType": "Float",
       "showAsHex": false,
@@ -1865,8 +1865,8 @@
       ],
       "address": "pCurrentClub",
       "offsets": [
-        "24",
-        "148"
+        "148",
+        "24"
       ],
       "varType": "Float",
       "showAsHex": false,
@@ -1879,8 +1879,8 @@
       ],
       "address": "pCurrentClub",
       "offsets": [
-        "28",
-        "148"
+        "148",
+        "28"
       ],
       "varType": "Float",
       "showAsHex": false,
@@ -1893,8 +1893,8 @@
       ],
       "address": "pCurrentClub",
       "offsets": [
-        "3C",
-        "148"
+        "148",
+        "3C"
       ],
       "varType": "Byte",
       "showAsHex": false,
@@ -1951,9 +1951,9 @@
       ],
       "address": "pCurrentStaff",
       "offsets": [
-        "4",
+        "140",
         "0",
-        "140"
+        "4"
       ],
       "varType": "String",
       "showAsHex": false,
@@ -1966,9 +1966,9 @@
       ],
       "address": "pCurrentStaff",
       "offsets": [
-        "4",
+        "148",
         "0",
-        "148"
+        "4"
       ],
       "varType": "String",
       "showAsHex": false,
@@ -1981,9 +1981,9 @@
       ],
       "address": "pCurrentStaff",
       "offsets": [
-        "4",
+        "158",
         "b8",
-        "158"
+        "4"
       ],
       "varType": "String",
       "showAsHex": false,
@@ -1996,9 +1996,9 @@
       ],
       "address": "pCurrentStaff",
       "offsets": [
-        "4",
+        "170",
         "18",
-        "170"
+        "4"
       ],
       "varType": "String",
       "showAsHex": false,
@@ -2115,8 +2115,8 @@
       ],
       "address": "pCurrentStaff",
       "offsets": [
-        "8",
-        "1e8"
+        "1e8",
+        "8"
       ],
       "varType": "Byte",
       "showAsHex": false,
@@ -2129,8 +2129,8 @@
       ],
       "address": "pCurrentStaff",
       "offsets": [
-        "D",
-        "1e8"
+        "1e8",
+        "D"
       ],
       "varType": "Byte",
       "showAsHex": false,
@@ -2143,8 +2143,8 @@
       ],
       "address": "pCurrentStaff",
       "offsets": [
-        "0",
-        "1e8"
+        "1e8",
+        "0"
       ],
       "varType": "Byte",
       "showAsHex": false,
@@ -2157,8 +2157,8 @@
       ],
       "address": "pCurrentStaff",
       "offsets": [
-        "1",
-        "1e8"
+        "1e8",
+        "1"
       ],
       "varType": "Byte",
       "showAsHex": false,
@@ -2171,8 +2171,8 @@
       ],
       "address": "pCurrentStaff",
       "offsets": [
-        "2",
-        "1e8"
+        "1e8",
+        "2"
       ],
       "varType": "Byte",
       "showAsHex": false,
@@ -2185,8 +2185,8 @@
       ],
       "address": "pCurrentStaff",
       "offsets": [
-        "6",
-        "1e8"
+        "1e8",
+        "6"
       ],
       "varType": "Byte",
       "showAsHex": false,
@@ -2199,8 +2199,8 @@
       ],
       "address": "pCurrentStaff",
       "offsets": [
-        "5",
-        "1e8"
+        "1e8",
+        "5"
       ],
       "varType": "Byte",
       "showAsHex": false,
@@ -2213,8 +2213,8 @@
       ],
       "address": "pCurrentStaff",
       "offsets": [
-        "9",
-        "1e8"
+        "1e8",
+        "9"
       ],
       "varType": "Byte",
       "showAsHex": false,
@@ -2227,8 +2227,8 @@
       ],
       "address": "pCurrentStaff",
       "offsets": [
-        "4",
-        "1e8"
+        "1e8",
+        "4"
       ],
       "varType": "Byte",
       "showAsHex": false,
@@ -2241,8 +2241,8 @@
       ],
       "address": "pCurrentStaff",
       "offsets": [
-        "B",
-        "1e8"
+        "1e8",
+        "B"
       ],
       "varType": "Byte",
       "showAsHex": false,
@@ -2255,8 +2255,8 @@
       ],
       "address": "pCurrentStaff",
       "offsets": [
-        "A",
-        "1e8"
+        "1e8",
+        "A"
       ],
       "varType": "Byte",
       "showAsHex": false,
@@ -2269,8 +2269,8 @@
       ],
       "address": "pCurrentStaff",
       "offsets": [
-        "3",
-        "1e8"
+        "1e8",
+        "3"
       ],
       "varType": "Byte",
       "showAsHex": false,
@@ -2283,8 +2283,8 @@
       ],
       "address": "pCurrentStaff",
       "offsets": [
-        "C",
-        "1e8"
+        "1e8",
+        "C"
       ],
       "varType": "Byte",
       "showAsHex": false,
@@ -3009,8 +3009,8 @@
       ],
       "address": "pCurrentStaff",
       "offsets": [
-        "18",
-        "1b0"
+        "1b0",
+        "18"
       ],
       "varType": "4 Bytes",
       "showAsHex": false,
@@ -3023,8 +3023,8 @@
       ],
       "address": "pCurrentStaff",
       "offsets": [
-        "3e",
-        "1b0"
+        "1b0",
+        "3e"
       ],
       "varType": "2 Bytes",
       "showAsHex": false,
@@ -3037,8 +3037,8 @@
       ],
       "address": "pCurrentStaff",
       "offsets": [
-        "42",
-        "1b0"
+        "1b0",
+        "42"
       ],
       "varType": "2 Bytes",
       "showAsHex": false,
@@ -3051,8 +3051,8 @@
       ],
       "address": "pCurrentStaff",
       "offsets": [
-        "46",
-        "1b0"
+        "1b0",
+        "46"
       ],
       "varType": "2 Bytes",
       "showAsHex": false,
