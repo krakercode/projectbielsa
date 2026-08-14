@@ -1,0 +1,15 @@
+# Local state dumps / decision logs — may contain save data, not for the repo
+data/snapshots/*
+data/logs/*
+!data/snapshots/.gitkeep
+!data/logs/.gitkeep
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# OS
+Thumbs.db
+.DS_Store
