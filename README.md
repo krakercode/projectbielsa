@@ -6,7 +6,9 @@ Single-player, offline modding of the user's own game saves only — no online/m
 
 ## Status
 
-**Phase 0 complete** — Cheat Engine attaches to `fm.exe` and the FM21-Cheat-Table reads live player data (CA/PA/attributes) with no anti-tamper blocker. See [docs/phase0-feasibility.md](docs/phase0-feasibility.md) for details. Now starting **Phase 1 — Data Layer: Full-Squad Read Access**.
+**Phase 0 complete** — Cheat Engine attaches to `fm.exe` and the FM21-Cheat-Table reads live player data (CA/PA/attributes) with no anti-tamper blocker. See [docs/phase0-feasibility.md](docs/phase0-feasibility.md) for details.
+
+**Phase 1 in progress** — `scripts/lua/dump_state.lua` now reads every field the base table exposes for the currently-selected player/club/staff and serializes it to JSON (generated from `fm.CT` itself, see `cheat-table/parse_ct.js` + `cheat-table/generate_dump_lua.js`), but it's **untested against a live game** — no live session was available to verify it. The full-squad array walk (the actual Phase 1 exit criterion) hasn't been started — it needs live AOB scanning in Cheat Engine. See [docs/phase1-notes.md](docs/phase1-notes.md) for what to check first and the scan plan.
 
 ## Repo layout
 

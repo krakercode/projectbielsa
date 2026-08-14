@@ -1,0 +1,3062 @@
+{
+  "Current Player": [
+    {
+      "path": [
+        "_",
+        "Dont touch",
+        "pPlayer"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "0"
+      ],
+      "varType": "8 Bytes",
+      "showAsHex": true,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "_",
+        "Dont touch",
+        "vt"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "270"
+      ],
+      "varType": "8 Bytes",
+      "showAsHex": true,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "_",
+        "Dont touch",
+        "Row ID"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "278"
+      ],
+      "varType": "4 Bytes",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "_",
+        "Dont touch",
+        "UID"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "27C"
+      ],
+      "varType": "4 Bytes",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Player Info",
+        "Name (Read Only)",
+        "First Name"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "4",
+        "0",
+        "2c8"
+      ],
+      "varType": "String",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Player Info",
+        "Name (Read Only)",
+        "Last Name"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "4",
+        "0",
+        "2d0"
+      ],
+      "varType": "String",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Player Info",
+        "Name (Read Only)",
+        "Full Name"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "4",
+        "2b8"
+      ],
+      "varType": "String",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Player Info",
+        "Nationality (Read Only)",
+        "Full Name"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "4",
+        "b8",
+        "2e0"
+      ],
+      "varType": "String",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Player Info",
+        "Nationality (Read Only)",
+        "Shortname"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "4",
+        "C0",
+        "2e0"
+      ],
+      "varType": "String",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Player Info",
+        "Nationality (Read Only)",
+        "3 Letter Name"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "4",
+        "D0",
+        "2e0"
+      ],
+      "varType": "String",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Player Info",
+        "Team Club (Read Only)",
+        "Name"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "4",
+        "b8",
+        "30",
+        "88"
+      ],
+      "varType": "String",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Player Info",
+        "Birth Year"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "2b6"
+      ],
+      "varType": "2 Bytes",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Player Info",
+        "Weight (kg)"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "a4"
+      ],
+      "varType": "2 Bytes",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Player Info",
+        "Height (cm)"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "a6"
+      ],
+      "varType": "2 Bytes",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Player Info",
+        "Value (£)"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "128"
+      ],
+      "varType": "4 Bytes",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Contract",
+        "Wage Per Week (£)"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "18",
+        "338"
+      ],
+      "varType": "4 Bytes",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Contract",
+        "Started Year"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "3e",
+        "338"
+      ],
+      "varType": "2 Bytes",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Contract",
+        "Expires Year"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "42",
+        "338"
+      ],
+      "varType": "2 Bytes",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Contract",
+        "Join Year"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "46",
+        "338"
+      ],
+      "varType": "2 Bytes",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Other",
+        "Fitness"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "1F0"
+      ],
+      "varType": "2 Bytes",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Other",
+        "Condition"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "1F4"
+      ],
+      "varType": "2 Bytes",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Other",
+        "Jadedness"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "1F2"
+      ],
+      "varType": "2 Bytes",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Other",
+        "Home Rep"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "1F6"
+      ],
+      "varType": "2 Bytes",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Other",
+        "Current Rep"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "1F8"
+      ],
+      "varType": "2 Bytes",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Other",
+        "World Rep"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "1FA"
+      ],
+      "varType": "2 Bytes",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Personality",
+        "Adaptability"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "2e8"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Personality",
+        "Ambition"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "2e9"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Personality",
+        "Loyalty"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "2eA"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Personality",
+        "Pressure"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "2eb"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Personality",
+        "Professionalism"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "2ec"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Personality",
+        "Sportsmanship"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "2ed"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Personality",
+        "Temperament"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "2ee"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Personality",
+        "Controversy"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "2ef"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Positions",
+        "GK"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "204"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Positions",
+        "SW"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "205"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Positions",
+        "DL"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "206"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Positions",
+        "DC"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "207"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Positions",
+        "DR"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "208"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Positions",
+        "WBL"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "211"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Positions",
+        "WBR"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "212"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Positions",
+        "DM"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "209"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Positions",
+        "ML"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "20a"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Positions",
+        "MC"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "20b"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Positions",
+        "MR"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "20c"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Positions",
+        "AML"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "20d"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Positions",
+        "AMC"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "20e"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Positions",
+        "AMR"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "20f"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Positions",
+        "ST"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "210"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "CA"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "1FC"
+      ],
+      "varType": "2 Bytes",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "PA"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "1FE"
+      ],
+      "varType": "2 Bytes",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Left Foot"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "22B"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Right Foot"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "22C"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Goalkeeping",
+        "Aerial Reach"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "21F"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Goalkeeping",
+        "Command Of Area"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "220"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Goalkeeping",
+        "Communication"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "221"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Goalkeeping",
+        "Eccentricity"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "232"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Goalkeeping",
+        "First Touch"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "229"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Goalkeeping",
+        "Handling"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "21E"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Goalkeeping",
+        "Kicking"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "222"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Goalkeeping",
+        "One On Ones"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "226"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Goalkeeping",
+        "Passing"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "21a"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Goalkeeping",
+        "Punching"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "234"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Goalkeeping",
+        "Reflexes"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "228"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Goalkeeping",
+        "Rushing Out"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "233"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Goalkeeping",
+        "Throwing"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "223"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Technical",
+        "Corners"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "22e"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Technical",
+        "Crossing"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "213"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Technical",
+        "Dribbling"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "214"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Technical",
+        "Finishing"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "215"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Technical",
+        "First Touch"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "229"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Technical",
+        "Free Kick Taking"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "236"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Technical",
+        "Heading"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "216"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Technical",
+        "Long Shots"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "217"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Technical",
+        "Long Throws"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "231"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Technical",
+        "Marking"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "218"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Technical",
+        "Passing"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "21a"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Technical",
+        "Penalty Taking"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "21b"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Technical",
+        "Tackling"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "21c"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Technical",
+        "Technique"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "22a"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Mental",
+        "Aggression"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "240"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Mental",
+        "Anticipation"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "224"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Mental",
+        "Bravery"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "23e"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Mental",
+        "Composure"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "247"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Mental",
+        "Concentration"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "248"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Mental",
+        "Decisions"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "225"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Mental",
+        "Determination"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "246"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Mental",
+        "Flair"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "22D"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Mental",
+        "Leadership"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "23B"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Mental",
+        "Off The Ball"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "219"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Mental",
+        "Positioning"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "227"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Mental",
+        "Teamwork"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "22F"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Mental",
+        "Vision"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "21D"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Mental",
+        "Work Rate"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "230"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Physical",
+        "Acceleration"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "235"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Physical",
+        "Agility"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "241"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Physical",
+        "Balance"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "23D"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Physical",
+        "Jumping Reach"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "23a"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Physical",
+        "Natural Fitness"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "245"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Physical",
+        "Pace"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "239"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Physical",
+        "Stamina"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "238"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Physical",
+        "Strength"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "237"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Hidden",
+        "Dirtiness"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "23C"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Hidden",
+        "Consistency"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "23F"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Hidden",
+        "Imp. Matches"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "242"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Hidden",
+        "Injury Proneness"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "243"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Hidden",
+        "Versatility"
+      ],
+      "address": "pCurrentPlayer",
+      "offsets": [
+        "244"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    }
+  ],
+  "Current Club": [
+    {
+      "path": [
+        "_",
+        "Dont touch",
+        "pClub"
+      ],
+      "address": "pCurrentClub",
+      "offsets": [
+        "0"
+      ],
+      "varType": "8 Bytes",
+      "showAsHex": true,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "_",
+        "Dont touch",
+        "Row ID"
+      ],
+      "address": "pCurrentClub",
+      "offsets": [
+        "8"
+      ],
+      "varType": "4 Bytes",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "_",
+        "Dont touch",
+        "UID"
+      ],
+      "address": "pCurrentClub",
+      "offsets": [
+        "C"
+      ],
+      "varType": "4 Bytes",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Club Info",
+        "Full Name"
+      ],
+      "address": "pCurrentClub",
+      "offsets": [
+        "4",
+        "B8"
+      ],
+      "varType": "String",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Club Info",
+        "Short Name"
+      ],
+      "address": "pCurrentClub",
+      "offsets": [
+        "4",
+        "c0"
+      ],
+      "varType": "String",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Club Info",
+        "Nickname"
+      ],
+      "address": "pCurrentClub",
+      "offsets": [
+        "4",
+        "90",
+        "b0"
+      ],
+      "varType": "String",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Facilities",
+        "Stadium",
+        "Name"
+      ],
+      "address": "pCurrentClub",
+      "offsets": [
+        "4",
+        "40",
+        "78",
+        "0",
+        "18"
+      ],
+      "varType": "String",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Facilities",
+        "Stadium",
+        "Year Built"
+      ],
+      "address": "pCurrentClub",
+      "offsets": [
+        "22",
+        "78",
+        "0",
+        "18"
+      ],
+      "varType": "2 Bytes",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Facilities",
+        "Stadium",
+        "Capacity"
+      ],
+      "address": "pCurrentClub",
+      "offsets": [
+        "6C",
+        "78",
+        "0",
+        "18"
+      ],
+      "varType": "4 Bytes",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Facilities",
+        "Stadium",
+        "Capacity (seated)"
+      ],
+      "address": "pCurrentClub",
+      "offsets": [
+        "70",
+        "78",
+        "0",
+        "18"
+      ],
+      "varType": "4 Bytes",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Facilities",
+        "Stadium",
+        "Avg. Attendance"
+      ],
+      "address": "pCurrentClub",
+      "offsets": [
+        "68",
+        "b0"
+      ],
+      "varType": "4 Bytes",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Facilities",
+        "Stadium",
+        "Min. Attendance"
+      ],
+      "address": "pCurrentClub",
+      "offsets": [
+        "6C",
+        "b0"
+      ],
+      "varType": "4 Bytes",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Facilities",
+        "Stadium",
+        "Max. Attendance"
+      ],
+      "address": "pCurrentClub",
+      "offsets": [
+        "70",
+        "b0"
+      ],
+      "varType": "4 Bytes",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Facilities",
+        "Corporate Facilities"
+      ],
+      "address": "pCurrentClub",
+      "offsets": [
+        "88d",
+        "148"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Facilities",
+        "Training Facilities"
+      ],
+      "address": "pCurrentClub",
+      "offsets": [
+        "e8",
+        "f8"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Facilities",
+        "Youth Facilities"
+      ],
+      "address": "pCurrentClub",
+      "offsets": [
+        "f3",
+        "f8"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Facilities",
+        "Youth Importance"
+      ],
+      "address": "pCurrentClub",
+      "offsets": [
+        "e1",
+        "f8"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Facilities",
+        "Junior Coaching"
+      ],
+      "address": "pCurrentClub",
+      "offsets": [
+        "f4",
+        "f8"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Facilities",
+        "Youth Recruitment"
+      ],
+      "address": "pCurrentClub",
+      "offsets": [
+        "f5",
+        "f8"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Finances",
+        "Balance (£)"
+      ],
+      "address": "pCurrentClub",
+      "offsets": [
+        "14",
+        "148"
+      ],
+      "varType": "4 Bytes",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Finances",
+        "Transfer Budget (£)"
+      ],
+      "address": "pCurrentClub",
+      "offsets": [
+        "7a4",
+        "148"
+      ],
+      "varType": "4 Bytes",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Finances",
+        "Income % Available"
+      ],
+      "address": "pCurrentClub",
+      "offsets": [
+        "7b0",
+        "148"
+      ],
+      "varType": "4 Bytes",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Finances",
+        "Weekly Wage Budget (£)"
+      ],
+      "address": "pCurrentClub",
+      "offsets": [
+        "7e8",
+        "148"
+      ],
+      "varType": "4 Bytes",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Finances",
+        "Wage Budget Used (£)"
+      ],
+      "address": "pCurrentClub",
+      "offsets": [
+        "7F4",
+        "148"
+      ],
+      "varType": "4 Bytes",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Finances",
+        "Avg. Match Ticker Price (£)"
+      ],
+      "address": "pCurrentClub",
+      "offsets": [
+        "18",
+        "148"
+      ],
+      "varType": "Float",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Finances",
+        "Avg. Season Ticker Price (£)"
+      ],
+      "address": "pCurrentClub",
+      "offsets": [
+        "1C",
+        "148"
+      ],
+      "varType": "Float",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Finances",
+        "Match Ticket Price Ratio (£)"
+      ],
+      "address": "pCurrentClub",
+      "offsets": [
+        "20",
+        "148"
+      ],
+      "varType": "Float",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Finances",
+        "Season Ticket Price Ratio (£)"
+      ],
+      "address": "pCurrentClub",
+      "offsets": [
+        "24",
+        "148"
+      ],
+      "varType": "Float",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Finances",
+        "Season Ticket Change Ratio (£)"
+      ],
+      "address": "pCurrentClub",
+      "offsets": [
+        "28",
+        "148"
+      ],
+      "varType": "Float",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Finances",
+        "Sugar Daddy"
+      ],
+      "address": "pCurrentClub",
+      "offsets": [
+        "3C",
+        "148"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    }
+  ],
+  "Current Staff": [
+    {
+      "path": [
+        "_",
+        "Dont touch",
+        "pStaff"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "0"
+      ],
+      "varType": "8 Bytes",
+      "showAsHex": true,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "_",
+        "Dont touch",
+        "Row ID"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "f0"
+      ],
+      "varType": "4 Bytes",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "_",
+        "Dont touch",
+        "UID"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "f4"
+      ],
+      "varType": "4 Bytes",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Info",
+        "First Name"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "4",
+        "0",
+        "140"
+      ],
+      "varType": "String",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Info",
+        "Last Name"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "4",
+        "0",
+        "148"
+      ],
+      "varType": "String",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Info",
+        "Nationality"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "4",
+        "b8",
+        "158"
+      ],
+      "varType": "String",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Info",
+        "Place Of Birth"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "4",
+        "18",
+        "170"
+      ],
+      "varType": "String",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Personality",
+        "Adaptability"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "160"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Personality",
+        "Ambition"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "161"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Personality",
+        "Loyalty"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "162"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Personality",
+        "Pressure"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "163"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Personality",
+        "Professionalism"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "164"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Personality",
+        "Sportsmanship"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "165"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Personality",
+        "Temperament"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "166"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Personality",
+        "Controversy"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "167"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Job Attributes",
+        "Director Of Football"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "8",
+        "1e8"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Job Attributes",
+        "Technical Director"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "D",
+        "1e8"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Job Attributes",
+        "Manager"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "0",
+        "1e8"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Job Attributes",
+        "Assistant Manager"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "1",
+        "1e8"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Job Attributes",
+        "Coach"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "2",
+        "1e8"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Job Attributes",
+        "Fitness Coach"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "6",
+        "1e8"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Job Attributes",
+        "GK Coach"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "5",
+        "1e8"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Job Attributes",
+        "Head of Youth Development"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "9",
+        "1e8"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Job Attributes",
+        "Scout"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "4",
+        "1e8"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Job Attributes",
+        "Analyst"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "B",
+        "1e8"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Job Attributes",
+        "Loan Manager"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "A",
+        "1e8"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Job Attributes",
+        "Physio"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "3",
+        "1e8"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Job Attributes",
+        "Sports Scientist"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "C",
+        "1e8"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "CA"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "d2"
+      ],
+      "varType": "2 Bytes",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "PA"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "d4"
+      ],
+      "varType": "2 Bytes",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Analysis",
+        "Analysing Data"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "44"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Analysis",
+        "Judging Team Data (?)"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "45"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Analysis",
+        "Presenting Data (?)"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "46"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Chairman",
+        "Business"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "19"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Chairman",
+        "Interference"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "1e"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Chairman",
+        "Patience"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "21"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Chairman",
+        "Resources"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "23"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "NonTactical",
+        "Buying Players"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "26"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "NonTactical",
+        "Mind Games"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "27"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "NonTactical",
+        "Hardness of training"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "2E"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "NonTactical",
+        "Squad Rotation"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "2F"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Tactical",
+        "Attacking"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "18"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Tactical",
+        "Directness"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "1B"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Tactical",
+        "Free Roles"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "1D"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Tactical",
+        "Marking"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "1F"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Tactical",
+        "Offside"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "20"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Tactical",
+        "Pressing"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "22"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Tactical",
+        "Sitting Back"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "28"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Tactical",
+        "Use Of Playmaker"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "29"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Tactical",
+        "Use Of Subs"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "2A"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Tactical",
+        "Depth"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "2B"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Tactical",
+        "Flamboyancy"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "2C"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Tactical",
+        "Flexibility"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "2D"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Tactical",
+        "Tempo"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "30"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Tactical",
+        "Width"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "31"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Coaching",
+        "Attacking"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "3A"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Coaching",
+        "Defending"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "3B"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Coaching",
+        "Fitness"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "3C"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Coaching",
+        "Mental"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "3D"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Coaching",
+        "Technical"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "3E"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Coaching",
+        "Tactical"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "3F"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Coaching",
+        "Dirtiness Allowance"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "40"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Coaching",
+        "Versatility"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "43"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Coaching",
+        "Working with Youngsters"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "24"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Coaching",
+        "GK Shot Stopping"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "33"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Coaching",
+        "GK Handling"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "41"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Coaching",
+        "GK Distribution"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "42"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Coaching",
+        "Players"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "32"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Coaching",
+        "Man Management"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "36"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Medical",
+        "Physiotherapy"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "38"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Medical",
+        "Sport Science"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "47"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Knowledge",
+        "Judging Player Ability"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "34"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Knowledge",
+        "Judging Player Potential"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "35"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Knowledge",
+        "Judging Staff Ability"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "4a"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Knowledge",
+        "Tactical Knowledge"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "39"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Knowledge",
+        "Negotiating"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "49"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Mental",
+        "Level of Discipline"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "1c"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Mental",
+        "Determination"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "25"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Attributes",
+        "Mental",
+        "Motivating"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "37"
+      ],
+      "varType": "Byte",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Contract",
+        "Wage Per Week (£)"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "18",
+        "1b0"
+      ],
+      "varType": "4 Bytes",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Contract",
+        "Started Year"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "3e",
+        "1b0"
+      ],
+      "varType": "2 Bytes",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Contract",
+        "Expires Year"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "42",
+        "1b0"
+      ],
+      "varType": "2 Bytes",
+      "showAsHex": false,
+      "showAsSigned": false
+    },
+    {
+      "path": [
+        "Contract",
+        "Join Year"
+      ],
+      "address": "pCurrentStaff",
+      "offsets": [
+        "46",
+        "1b0"
+      ],
+      "varType": "2 Bytes",
+      "showAsHex": false,
+      "showAsSigned": false
+    }
+  ]
+}
