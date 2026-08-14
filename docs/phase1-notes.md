@@ -184,15 +184,58 @@ specific. Worth trying the Finances or Facilities screens, or a club search
 result, before assuming the script is broken. The 30 club fields remain
 untested.
 
+## Pointer scan: 27 candidate static paths (unvalidated)
+
+Ran CE's Pointer Scanner against the squad vector header `0x6B7CC8C0`.
+
+**Level 3 / max offset 1023: zero results, instantly** — "unique pointervalues
+in target: 0", meaning nothing anywhere points within 1 KB *before* the header.
+Consistent with it being embedded deep inside a large owner object.
+
+**Level 4 / max offset 4095: 27 paths, under 40 seconds, 16 KB of output.** All
+root at static module addresses. Saved to `D:\ptrscan\squadvec_L4.PTR` (kept off
+C:, which only has ~21 GB free; the `.PTR` is the authoritative record — reopen
+it in CE rather than retyping these).
+
+CE warns that scanning without a comparison pointermap can yield "billions of
+useless results and giga/terabytes of wasted diskspace". At level 4 / 4095 that
+did not materialise, but don't raise the level much without the compare
+workflow.
+
+The 27 collapse into a few families (several rows are the same object reached
+via a different base+offset split — the bases differ by 0x7C/0x80 and the first
+offset compensates):
+
+| Base | Offsets |
+| --- | --- |
+| `fm.exe+06E62FC8` / `+06E6304C` / `+06E630C8` | `A28/A00/9D8`, `48`, `C30` |
+| `fm.exe+06E62FC8` / `+06E6304C` / `+06E630C8` | `A30/A08/9E0`, `48`, `198`, `9F0` |
+| `fm.exe+060C2F38` / `+060C2F88` / `+060C2FB0` | `1C`, `224`/`22C`, `48`, `9F0` |
+| `fm.exe+07006C90` | `0`, `2D8`/`2E0`, `60`, `B10` |
+| `fm.exe+070ACAD0` | `8`, `218`, `48`, `B10` |
+| `fm.exe+070B0FC8` | `18`, `F80`/`F88`, `78`, `9F0` |
+
+Two paths root in `eossdk-win64-shipping` (the Epic SDK) rather than `fm.exe` —
+almost certainly coincidental and should be discarded first.
+
+**These are unvalidated.** A pointer scan on a single snapshot finds paths that
+happen to work right now; most are coincidence. They only become trustworthy
+after filtering across a game restart, which hasn't been done — see below.
+
 ## Next steps
 
-1. **A stable pointer path to the squad vector.** The single highest-value item.
-   The right tool is CE's Pointer Scanner against `0x6B7CC8C0` — it handles
-   exactly this case (target embedded by value, reached via offsets from a
-   static module address). Heavyweight, so give it its own session. A static
-   path removes the per-call memory scan, makes the exact vector-header path the
-   default instead of something you have to find by hand each run, and should
-   let us enumerate *any* club rather than only the one whose player is selected.
+1. **Validate the pointer paths across a restart.** This is what turns the 27
+   candidates into a usable static path, and it's the single highest-value item.
+   Procedure: restart FM and load the save; re-locate the vector header in the
+   new process (`dump_squad.lua`'s scan to find the array, then
+   `who_points_here.lua` on the array start to find its header); reopen
+   `D:\ptrscan\squadvec_L4.PTR` in CE and use **Pointer scanner → "Rescan memory
+   — removes pointers not pointing to the right address"** with the new address.
+   Repeat over a second restart to kill remaining coincidences. Whatever
+   survives becomes the primary resolution path in `dump_squad.lua`, replacing
+   the per-call memory scan and the hand-found header address.
+   Remember that a restart also means re-attaching CE, re-enabling all three
+   hook scripts, and re-selecting a player.
 2. **Find what populates `pCurrentClub`** — see above. Until then the 30 club
    fields (finances, facilities, stadium) are untested, and club finances are
    needed for any transfer decision.
