@@ -1,8 +1,10 @@
 # Local state dumps / decision logs — may contain save data, not for the repo
 data/snapshots/*
 data/logs/*
+data/manager-log/*
 !data/snapshots/.gitkeep
 !data/logs/.gitkeep
+!data/manager-log/.gitkeep
 
 # Python
 __pycache__/

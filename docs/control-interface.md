@@ -126,6 +126,20 @@ A single decision call is stateless by default, but a manager's real decisions d
 
 This is the cleanest fit for "long-horizon coherence" without inventing a bespoke mechanism — it's an existing, documented Anthropic tool, not something we'd have to build.
 
+## Post-session reflection
+
+Three complementary layers end up recording what the manager did, at three different grains, for three different audiences:
+
+| Layer | Grain | Written for | Format |
+|---|---|---|---|
+| Decision log | One entry per tool-call decision | Machine — replay, cross-model/cross-profile comparison | JSON Lines, `data/logs/` |
+| Memory | Whatever the model chooses to note, whenever | The model's own future self | Free-form files, `data/memory/<save_id>/` |
+| **Session report** | One per play session (a match, a run of fixtures, a transfer window) | **A human reviewing how the AI is actually managing** | Markdown, self-written, `data/manager-log/<save_id>/` |
+
+The session report is the missing piece the other two don't cover: a human-readable reflection, in the manager's own words, at the end of a session — what it did, whether it hit its goals, why it made the calls it made, what it learned, and (critically) what went wrong. Template: `docs/manager-log/TEMPLATE.md`. The manager should fill it out at the end of every session and treat it as the trigger to update its memory notes — the report is the reflection, memory is what survives from it into next time.
+
+This is also the natural place to catch a manager that's technically executing decisions fine but reasoning badly — a session report that never admits a mistake across a losing streak is a calibration problem worth catching long before it shows up as a bad season.
+
 ## Model-agnostic adapter layer
 
 The plan's actual requirement: "each model plugs in behind a thin adapter; config selects which model/API runs a given save/season." Given the tool-use design above, this is a genuinely thin layer:

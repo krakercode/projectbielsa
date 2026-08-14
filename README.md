@@ -12,18 +12,22 @@ Single-player, offline modding of the user's own game saves only — no online/m
 
 **Phase 4 design work started early** — [docs/control-interface.md](docs/control-interface.md) works out how models actually drive the manager: an agentic tool-use loop (read tools + write tools per decision event) rather than one giant JSON-in/JSON-out call, where cheat/human mode plugs in, how manager "personality" (risk tolerance, transfer aggressiveness, etc.) gets configured separately from game state, and the model-agnostic adapter shape. Design only — no code yet, and it depends on Phase 1/2 read/write access existing first.
 
-**Session log** — this project spans many sessions with no memory between them. `docs/session-log/` carries context forward (what happened, why, what's still unverified) that isn't in the code. See `CLAUDE.md` for the convention; check the most recent entry before starting work.
+Two separate logging conventions exist — don't confuse them:
+
+- **Dev session log** (`docs/session-log/`) — for Claude sessions working *on this codebase*. This project spans many dev sessions with no memory between them; the log carries context forward (what happened, why, what's still unverified). See `CLAUDE.md`.
+- **Manager session report** (`docs/manager-log/TEMPLATE.md`) — for the *in-game AI manager itself* (Phase 4+, once it exists) to fill out after a play session — a match, a run of fixtures, a transfer window. A human-readable reflection distinct from the machine-oriented decision log described in `docs/control-interface.md`. Not active yet — the orchestration loop that would produce these doesn't exist until Phase 4.
 
 ## Repo layout
 
 - `PLAN.md` — full project plan (all phases)
-- `CLAUDE.md` — instructions for Claude sessions working in this repo (session-log convention)
+- `CLAUDE.md` — instructions for Claude sessions working in this repo (dev session-log convention)
 - `docs/` — feasibility notes, research findings, pointer maps as they're discovered
-- `docs/session-log/` — per-session log of what was done, why, and what's still open (see `TEMPLATE.md`)
+- `docs/session-log/` — per-*dev*-session log of what was done, why, and what's still open (see `TEMPLATE.md`)
+- `docs/manager-log/TEMPLATE.md` — template for the in-game AI manager's own post-play-session reflection (Phase 4+)
 - `cheat-table/` — the FM21 Cheat Engine table (`.CT`) and notes on pointers found in it
 - `scripts/lua/` — Cheat Engine Lua scripts (state dump, write actions) — run inside Cheat Engine attached to `fm.exe`
 - `scripts/python/` — the orchestration controller (Phase 4+) that talks to Cheat Engine and to Claude
-- `data/` — local JSON state snapshots and decision logs (gitignored — saves and dumps are local only)
+- `data/` — local JSON state snapshots, decision logs, and manager session reports (gitignored — saves and dumps are local only)
 
 ## Requirements
 
