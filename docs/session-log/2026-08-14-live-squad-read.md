@@ -79,10 +79,31 @@ With that done, all 83 staff fields read correctly for John Terry (Villa coach):
 
 Also worth recording: the main log above stated staff was "untested, not known-broken" and attributed it to selection. That was wrong — it was a disabled script. Corrected here rather than silently.
 
+## Addendum 2 — pointer scan
+
+Ran CE's Pointer Scanner against `0x6B7CC8C0` (header re-verified live first: `begin=9C3ED6F0 end=9C3ED7A8 count=23`).
+
+- **Level 3 / max offset 1023: zero paths, instantly.** "Unique pointervalues in target: 0" — nothing anywhere points within 1 KB before the header, consistent with it sitting deep inside a large owner object.
+- **Level 4 / max offset 4095: 27 paths in under 40 seconds, 16 KB total.** All rooted at static module addresses. Saved to `D:\ptrscan\squadvec_L4.PTR`.
+
+Deliberately started small: CE warns that scanning without a comparison pointermap can produce "billions of useless results and giga/terabytes of wasted diskspace", and C: only has ~21 GB free — hence D: for output, and level 3 before level 4. **This contradicts the previous prediction in this very log that the pointer scan needed its own session for being heavyweight.** It was the cheap part. The expensive part is validation, which is not done.
+
+The 27 collapse into ~6 families (many rows are the same object via a different base+offset split; bases differ by 0x7C/0x80 and the first offset compensates). Two root in `eossdk-win64-shipping` rather than `fm.exe` and are almost certainly coincidence. Full table in `docs/phase1-notes.md`; the `.PTR` is authoritative — reopen it in CE rather than retyping.
+
+**The paths are unvalidated and most are probably wrong.** A single-snapshot scan finds whatever resolves right now. They only become trustworthy after filtering across a game restart, which needs the user's say-so since it restarts their save. Procedure written up in `docs/phase1-notes.md`.
+
+## Session end state
+
+- Repo clean, all work pushed through `d311e6c`.
+- `D:\ptrscan\squadvec_L4.PTR` — **not** in the repo (it's a CE binary artifact on another drive). Next session needs it; if it's gone, re-running the scan is under a minute.
+- Cheat table scripts were unticked and Cheat Engine closed cleanly, **without saving the table** — the added "squad vector header" entry was scratch, and saving would have modified the vendored `fm.CT`.
+- Of the two stray CE processes from the `open_application` mistake, PID 16420 was killed. **PID 18020 could not be** — it's running elevated and `Stop-Process` returns "Access is denied" from a non-elevated shell. It has no window and no table loaded, so it's inert, but it's still there; killing it needs an admin Task Manager. Didn't escalate privileges to force it.
+- FM21 was left running with the save loaded, deliberately — quitting a game with a live save risks discarding progress, and that's the user's call, not something to do as cleanup.
+
 ---
 
 ## Next session should probably
 
-1. **Run CE's Pointer Scanner against `0x6B7CC8C0`** to find a static pointer path to the squad vector. Highest-value item: it makes the exact vector-header path the default instead of an address you have to rediscover each launch, and should let us enumerate any club rather than only the selected player's. Give it its own session — minutes of scanning, large result files.
-2. **Find what populates `pCurrentClub`.** Try the Finances or Facilities screens, or a club search result, before assuming the script is broken. Club finances are needed for any transfer decision, so this blocks real progress.
+1. **Validate the 27 pointer paths across a restart.** Restart FM and load the save, re-locate the vector header in the new process (`dump_squad.lua` scan → `who_points_here.lua` on the array start), reopen `D:\ptrscan\squadvec_L4.PTR`, then **Pointer scanner → "Rescan memory — removes pointers not pointing to the right address"** with the new address. Repeat over a second restart. Whatever survives becomes the primary resolution path in `dump_squad.lua`. Budget ~30–45 min for one round, ~1 hour to trust it. Note a restart means re-attaching CE, re-enabling all three hook scripts, and re-selecting a player. If nothing survives, the path is longer than 4 levels and the two-pointermap compare workflow is needed instead.
+2. **Find what populates `pCurrentClub`.** Try the Finances or Facilities screens, or a club search result, before assuming the script is broken. Club finances block any transfer decision.
 3. **Fixtures, league tables and the transfer shortlist** — completely unexplored, and all required by Phase 1's exit criterion.
