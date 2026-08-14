@@ -20,5 +20,5 @@ Currently on **Phase 0 — Environment & Feasibility Check**. See [docs/phase0-f
 ## Requirements
 
 - Football Manager 2021 (Steam), patched to the latest 21.4.x build
-- Cheat Engine 7.2+
+- Cheat Engine, latest stable (the vendored table was tested against 7.2 — fall back to that specific version only if attach/pointers fail on newer CE)
 - Python 3.10+ (for the controller, from Phase 4 onward)

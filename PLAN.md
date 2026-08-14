@@ -7,7 +7,7 @@ Goal: Claude plays Football Manager 2021 — both between matches (transfers, ta
 Foundation: FM21 is frozen (no more patches), so tooling built against it won't break under our feet. The base technique is Cheat Engine's Lua scripting layer attaching to fm.exe — this is what FMRTE, FMSE21, and the existing xAranaktu/FM21-Cheat-Table are all built on. That table already proves pointers exist and are findable for the current player/club/staff in a save.
 
 ## Phase 0 — Environment & Feasibility Check
-- Install FM21 (Steam, patched to 21.4.0 — the version FMRTE/cheat tables target), Cheat Engine 7.2, and the FM21-Cheat-Table.
+- Install FM21 (Steam, patched to 21.4.0 — the version FMRTE/cheat tables target), the latest stable Cheat Engine, and the FM21-Cheat-Table. The table's own README states it was tested against CE 7.2 and Steam game version v21.3 — try latest CE first (better driver/DBVM support is more likely to help with the anti-tamper question below), and only fall back to CE 7.2 specifically if the table fails to attach or its pointers don't resolve on a newer CE build.
 - Confirm the table's pointers still resolve on our actual game build (Steam sometimes drifts slightly from the version a table was built against).
 - Confirm FM21's anti-tamper protections (documented as present, blocking some tools) don't prevent Cheat Engine from attaching. If they do, this is a hard blocker to resolve before anything else — likely means using a DBVM-capable CE build or an alternate attach method.
 - Exit criterion: can attach CE to a running FM21 save and read a known value (e.g. current player's CA) live.
