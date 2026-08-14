@@ -6,7 +6,7 @@ Single-player, offline modding of the user's own game saves only — no online/m
 
 ## Status
 
-Currently on **Phase 0 — Environment & Feasibility Check**. See [docs/phase0-feasibility.md](docs/phase0-feasibility.md) for the current state of the environment and what's still needed.
+**Phase 0 complete** — Cheat Engine attaches to `fm.exe` and the FM21-Cheat-Table reads live player data (CA/PA/attributes) with no anti-tamper blocker. See [docs/phase0-feasibility.md](docs/phase0-feasibility.md) for details. Now starting **Phase 1 — Data Layer: Full-Squad Read Access**.
 
 ## Repo layout
 
