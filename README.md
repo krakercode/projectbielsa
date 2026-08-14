@@ -12,10 +12,14 @@ Single-player, offline modding of the user's own game saves only — no online/m
 
 **Phase 4 design work started early** — [docs/control-interface.md](docs/control-interface.md) works out how models actually drive the manager: an agentic tool-use loop (read tools + write tools per decision event) rather than one giant JSON-in/JSON-out call, where cheat/human mode plugs in, how manager "personality" (risk tolerance, transfer aggressiveness, etc.) gets configured separately from game state, and the model-agnostic adapter shape. Design only — no code yet, and it depends on Phase 1/2 read/write access existing first.
 
+**Session log** — this project spans many sessions with no memory between them. `docs/session-log/` carries context forward (what happened, why, what's still unverified) that isn't in the code. See `CLAUDE.md` for the convention; check the most recent entry before starting work.
+
 ## Repo layout
 
 - `PLAN.md` — full project plan (all phases)
+- `CLAUDE.md` — instructions for Claude sessions working in this repo (session-log convention)
 - `docs/` — feasibility notes, research findings, pointer maps as they're discovered
+- `docs/session-log/` — per-session log of what was done, why, and what's still open (see `TEMPLATE.md`)
 - `cheat-table/` — the FM21 Cheat Engine table (`.CT`) and notes on pointers found in it
 - `scripts/lua/` — Cheat Engine Lua scripts (state dump, write actions) — run inside Cheat Engine attached to `fm.exe`
 - `scripts/python/` — the orchestration controller (Phase 4+) that talks to Cheat Engine and to Claude
