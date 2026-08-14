@@ -63,8 +63,26 @@ Session goals were: (1) test `dump_state.lua` live and fix what breaks, (2) if t
 
 ---
 
+## Addendum — same session, continued work
+
+The user asked to continue with items 1 and 2 from the list below. Both are done.
+
+**1. Squad count — fixed, but not the way it was planned.** Header validation was implemented as described (`vectorCountFor`), and it **never fired**. The reason matters: `runAround` expands while neighbouring slots resolve as players, and adjacent heap allocations often do hold valid player pointers, so the walked run overshoots the vector's real bounds. The header lookup then scans for a start address that isn't `begin`, finds nothing, and falls back. First run gave 20/23; a second run with a different anchor gave *zero* candidates because the `sameClub` filter demanded unanimity (since relaxed to a 70% majority so one loanee can't veto a squad).
+
+A diagnostic (`scripts/lua/diag_squad.lua`, new) settled it: `0x6B7CC8C0` was **still a valid vector header** after all the navigation — same 23 Villa players. So the vector is a stable data structure, not a per-screen UI list, and the problem was purely the heuristic's bounds. Added `squad_from_vector(header)` and `dump_squad_to_file(path, header)` to read the container directly. **Result: 23/23, zero incomplete records** — every player with first+last name, CA, PA, all attributes, correct club. The scanning path stays as a best-effort fallback.
+
+**2. Staff — verified.** The actual cause of `pCurrentStaff` reading 0 was *not* "no staff member selected", as the main log above guessed. `Current Player`, `Current Club` and `Current Staff` are **three separate hook scripts and each has to be ticked individually** — only `Current Player` had ever been enabled. Enabling one also doesn't backfill; the hook populates its pointer the next time the game touches that record, so you must re-select in FM afterwards.
+
+With that done, all 83 staff fields read correctly for John Terry (Villa coach): birthplace Barking, contract £10K p/w started 2018 expires 2021, CA/PA 110/152, job attributes (Coach 20, Manager 20, Assistant Manager 17, rest 1) matching the role dots on his profile. Staff attributes follow the same `displayed = round(internal/5)` rule — but **Level of Discipline (`0x1C`) and Working with Youngsters (`0x24`) read back already on the 1–20 scale**, as does the whole Personality block. Don't blanket-divide staff attributes by 5.
+
+**Club — attempted, still unverified.** Since the club hook was now enabled, I tried it too (beyond the two requested items). `pCurrentClub` stayed 0 on both the Club Info profile page and the staff pages, so it triggers on something more specific. The 30 club fields remain untested. Didn't chase further.
+
+Also worth recording: the main log above stated staff was "untested, not known-broken" and attributed it to selection. That was wrong — it was a disabled script. Corrected here rather than silently.
+
+---
+
 ## Next session should probably
 
-1. **Add vector-header validation to `scripts/lua/dump_squad.lua`** — for each candidate run, scan for a qword equal to the run's start address and require the following qword to equal its end; prefer those runs over the longest-run heuristic. This should take it from 20 to exactly 23. Verify live before committing.
-2. **Run CE's Pointer Scanner against the squad vector header** to find a static pointer path. This removes the per-call memory scan and would let us enumerate *any* club, not just the one whose player is selected. Give it its own session — it's minutes of scanning and large result files.
-3. **Select a staff member in FM and run `dump_state.lua`** to actually test the `pCurrentStaff` path, which has never resolved.
+1. **Run CE's Pointer Scanner against `0x6B7CC8C0`** to find a static pointer path to the squad vector. Highest-value item: it makes the exact vector-header path the default instead of an address you have to rediscover each launch, and should let us enumerate any club rather than only the selected player's. Give it its own session — minutes of scanning, large result files.
+2. **Find what populates `pCurrentClub`.** Try the Finances or Facilities screens, or a club search result, before assuming the script is broken. Club finances are needed for any transfer decision, so this blocks real progress.
+3. **Fixtures, league tables and the transfer shortlist** — completely unexplored, and all required by Phase 1's exit criterion.
