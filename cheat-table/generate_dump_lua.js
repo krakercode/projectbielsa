@@ -68,6 +68,25 @@ local FIELDS = {}
 
 ${luaFieldTables}
 
+-- Resolve a chain against an already-known record address. Offsets are in
+-- application order (see parse_ct.js): addr = base + o1, then
+-- addr = [addr] + oi for each subsequent offset, reading the final address
+-- directly without a last dereference.
+local function resolveFrom(base, offsets)
+  if base == nil or base == 0 then return nil end
+  local addr = base
+  for i, off in ipairs(offsets) do
+    if i == 1 then
+      addr = addr + off
+    else
+      local okp, ptr = pcall(readQword, addr)
+      if not okp or ptr == nil or ptr == 0 then return nil end
+      addr = ptr + off
+    end
+  end
+  return addr
+end
+
 local function resolvePointerChain(symbolName, offsets)
   local ok, sym = pcall(getAddress, symbolName)
   if not ok or sym == nil or sym == 0 then return nil end
@@ -131,6 +150,28 @@ local function dumpRecord(symbolName, fieldList)
     setPath(out, f.path, value)
   end
   return out
+end
+
+-- Same as dumpRecord, but against a raw record address rather than one of the
+-- base table's pCurrent* symbols. This is what lets us dump every player in a
+-- squad array, not just the one FM has selected.
+local function dumpRecordAt(base, fieldList)
+  if base == nil or base == 0 then return nil end
+  local out = {}
+  for _, f in ipairs(fieldList) do
+    setPath(out, f.path, readByType(resolveFrom(base, f.offsets), f.vtype))
+  end
+  return out
+end
+
+-- Exposed so squad-walking scripts can reuse the field tables and readers
+-- instead of duplicating the offsets.
+FM_FIELDS = FIELDS
+FM_dumpRecordAt = dumpRecordAt
+FM_resolveFrom = resolveFrom
+
+function dump_player_at(address)
+  return dumpRecordAt(address, FIELDS.CurrentPlayer)
 end
 
 function dump_current_player()
