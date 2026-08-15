@@ -79,11 +79,21 @@ One sharp caveat to record, though: playing FM21 **in 2026** confers five years 
 
 ### Randomising the database
 
-Options, cheapest first:
+**CHECKED 2026-08-15: FM21 has no option to randomise or fake the database at startup.** This was previously recorded here as "believed to exist, unverified" — it does not. The new-game setup offers no fake-players toggle. Don't go looking again.
 
-1. **Fake players at game creation.** FM's new-game database setup is believed to offer a "fake players and staff" option, generating a fictional playing population while keeping real clubs and leagues. If present in FM21 this is a one-click solution. **Unverified — check before designing around it.**
-2. **Holiday forward 15–20 seasons.** Every real player retires and the world becomes entirely regens. Zero tooling, guaranteed clean. Cost: finances, reputations and squads drift a long way from the starting world, and AI transfer activity reshapes the landscape.
-3. **Pre-Game Editor** (free on Steam). Full editing power, but no "randomise 100k players" button — this means scripting mass edits, and is more work than the above.
+The one relevant startup option that *does* exist is **"use real-world fixtures for the first season"**, which is worth enabling for the real-world column: it fixes the fixture schedule across saves and removes one free source of between-seed variance at no cost.
+
+That leaves two routes, and we take both:
+
+1. **Holiday forward 15–20 seasons — the primary route.** Every real player retires and the world becomes entirely regens. Zero tooling, guaranteed clean, and it only has to be built **once**: produce a single base save and branch every randomised-column run from it.
+
+   The usual objection is world drift — finances, reputations and club strength get reshuffled by AI activity. That objection mostly doesn't apply here. The randomised column's job is not to mirror the real world; it's to be a world the model has no priors about. Drift is acceptable, arguably desirable.
+
+   Two practical notes: load **only the leagues the experiment will actually use**, since that's what makes 20 seasons simulate in reasonable time; and **pick the club after holidaying**, matching a target profile (e.g. established mid-table top-flight side) rather than assuming the starting club still occupies the same stature.
+
+2. **Anonymised serialisation — the complement.** Independent of the database, and entirely under our control since we own the JSON layer. Applies to both columns. See the "cannot instruct a model to forget" section below.
+
+Neither route is perfect on a real-world database, which is exactly why the contamination probe matters: it converts an imperfect control into a reported number.
 
 **Deliberately keep club-level knowledge.** Knowing that Man Utd are rich and Celtic dominate Scotland is not unfair — a human knows that too. The unfair advantage is *player-level* recall: knowing a 17-year-old becomes world class before scouting him. Randomising players kills exactly that while leaving realistic knowledge intact. That is the correct cut.
 
