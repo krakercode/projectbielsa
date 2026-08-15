@@ -176,13 +176,43 @@ value exactly rather than 5×. The Personality block (Loyalty, Adaptability,
 Professionalism…) is also natively 1–20. Don't blanket-divide staff attributes
 by 5.
 
-## Club: still unverified
+## Club: working and verified
 
-`Current Club` is now enabled, but `pCurrentClub` stayed 0 on both the Club Info
-profile page and the staff pages. The hook clearly triggers on something more
-specific. Worth trying the Finances or Facilities screens, or a club search
-result, before assuming the script is broken. The 30 club fields remain
-untested.
+**All 30 club fields read correctly.** Verified live 2026-08-15 against
+Liverpool's club page: name and nickname ("The Reds"), stadium Anfield, year
+built 1884, capacity 54,074 — all matching the UI — plus facilities (Training
+20, Youth 19) and finances (£153,128,037 balance, £17m transfer budget,
+£2,969,099 weekly wage budget).
+
+Getting `pCurrentClub` to populate needs **both**:
+
+1. The `Current Club` script ticked (a separate hook from `Current Player`), and
+2. **a club screen actually visited afterwards.** Enabling the script does not
+   backfill. On 2026-08-14 it read 0 all session because the Club Info page had
+   been opened *before* the hook was live.
+
+`scripts/lua/watch_pointers.lua` was written to settle this — it polls all three
+`pCurrent*` globals on a timer and logs every transition, so you can browse FM
+freely and afterwards see exactly what populated when. Reuse it for any future
+"which screen triggers this hook" question.
+
+### The hook retargets to whichever club you view
+
+This is more useful than it first appears. Opening Liverpool's page pointed
+`pCurrentClub` at Liverpool, not at our own club:
+
+```
+[tick 136] pCurrentClub: 0 -> 975AA370 (Aston Villa)
+[tick 339] pCurrentClub: ...    -> 975B08B0 (Liverpool)
+```
+
+So **any club's finances, facilities and stadium data are readable by navigating
+to that club.** Combined with `locate_vector()` finding any club's squad vector
+(proven accidentally when it returned Newport County's), the read layer can
+cover opposition clubs, not just our own — which matters for scouting and
+transfer reasoning later.
+
+`pCurrentStaff` populated at the same moment, pointing at the manager.
 
 ## Pointer scan: 27 candidate static paths (unvalidated)
 

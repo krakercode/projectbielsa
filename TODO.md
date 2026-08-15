@@ -10,11 +10,10 @@ Last updated: 2026-08-15
 
 ## Next up
 
-- [ ] **Find what populates `pCurrentClub`.** It stays 0 even with the `Current Club`
-      script enabled and the Club Info page open, so it hooks something more
-      specific — try Finances, Facilities, or a club search result. Blocks all
-      30 club fields including finances, which blocks any transfer decision.
-      *Deferred twice now; it's the oldest open item.*
+- [ ] **Fixtures / schedule** — visible on the Competitions and Schedule screens;
+      no memory structure located yet.
+- [ ] **League tables** — the full EPL table renders on the competition page, so
+      the data is there; find the backing structure.
 - [ ] **Cache the located vector header per session** so `locate_vector()`'s
       ~2 minutes of scanning is paid once, not per dump.
 - [ ] **Cold-read demo**: pre-commit to a club by table position, state priors
@@ -22,14 +21,14 @@ Last updated: 2026-08-15
 
 ## Phase 1 exit criterion (the actual remaining scope)
 
-The player layer is done and verified. The exit criterion — "one script call
-produces a clean JSON snapshot of an entire save's key state" — needs:
+Player, staff and club layers are done and verified. The exit criterion — "one
+script call produces a clean JSON snapshot of an entire save's key state" — needs:
 
-- [ ] Club finances (blocked on `pCurrentClub`)
 - [ ] Fixtures / schedule
 - [ ] League tables
 - [ ] Transfer shortlist
-- [ ] A single `dump_state()` entry point that assembles all of the above
+- [ ] A single `dump_state()` entry point that assembles all of the above,
+      including the squad via `locate_vector()` rather than the selection only
 
 ## Experiment setup (Phase 4+ prerequisites, PLAN.md)
 
@@ -64,4 +63,7 @@ produces a clean JSON snapshot of an entire save's key state" — needs:
 - [x] Reframe PLAN.md as an evaluation project; 2×2 design (`73b9387`, `bfabfee`)
 - [x] Confirm FM21 has no database randomisation option (`79f8dd6`)
 - [x] Validate the 27 pointer paths — **none survive a restart** (`571d4b1`)
-- [x] `locate_vector.lua` reproducing the squad vector from cold
+- [x] `locate_vector.lua` reproducing the squad vector from cold (`e677a0f`)
+- [x] `pCurrentClub` — needs the hook enabled *and* a club screen visited
+      afterwards; all 30 club fields verified against Liverpool's page. Also
+      retargets to any club you view, so opposition data is readable.

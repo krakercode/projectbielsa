@@ -14,7 +14,9 @@ Single-player, offline modding of the user's own game saves only — no online/m
 
 A pointer scan produced 27 candidate static paths to the header, and **none survived a restart** — checked against a confirmed-live target, so it's a clean negative rather than a missing-structure artifact. A static path would be an optimisation, not a blocker.
 
-Club state is **not** verified — `pCurrentClub` never populates — and fixtures, league tables and the shortlist aren't covered at all, so **Phase 1's exit criterion is not met.** See [TODO.md](TODO.md) for the live work queue and [docs/phase1-notes.md](docs/phase1-notes.md) for the memory structures and tooling.
+Club reads are verified too — all 30 fields against a real club page. The hook needs both the `Current Club` script enabled *and* a club screen visited afterwards, which is why it read 0 for two sessions. Usefully, it retargets to whichever club you view, so opposition finances and facilities are readable, not just our own.
+
+Fixtures, league tables and the transfer shortlist aren't covered at all, so **Phase 1's exit criterion is not met.** See [TODO.md](TODO.md) for the live work queue and [docs/phase1-notes.md](docs/phase1-notes.md) for the memory structures and tooling.
 
 **Phase 4 design work started early** — [docs/control-interface.md](docs/control-interface.md) works out how models actually drive the manager: an agentic tool-use loop (read tools + write tools per decision event) rather than one giant JSON-in/JSON-out call, where cheat/human mode plugs in, how manager "personality" (risk tolerance, transfer aggressiveness, etc.) gets configured separately from game state, and the model-agnostic adapter shape. Design only — no code yet, and it depends on Phase 1/2 read/write access existing first.
 
