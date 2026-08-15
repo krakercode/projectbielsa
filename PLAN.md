@@ -58,10 +58,58 @@ Foundation: FM21 is frozen (no more patches), so tooling built against it won't 
 
 These are what make the results mean something. They are not polish to add at the end — several are cheap now and expensive to retrofit.
 
-### Training-data contamination (the biggest threat to "learn the game")
-A 2020 Premier League save is heavily represented in model pretraining. The model doesn't need to *learn* that Grealish is the best player at Aston Villa, or that a gegenpress 4-2-3-1 is strong — it half-remembers both. A good result is then ambiguous between "learned the game" and "recalled the world."
+### The experiment is a 2×2
 
-Mitigations, strongest first: a custom/fictional database; a lower-league club where player knowledge is thin; or a far-future save where regens have replaced real players. At minimum run one contaminated and one clean scenario and compare — if performance collapses without real-world priors, that tells us what was actually being measured.
+Two factors, crossed. **Database** (real world vs randomised) controls how much the model can *recall*. **Information** (human vs perfect) controls how much the harness *shows* it.
+
+|                      | **Real-world DB**                                             | **Randomised DB**                                          |
+| -------------------- | ------------------------------------------------------------- | ---------------------------------------------------------- |
+| **Human knowledge**  | The realistic condition — what an actual FM player experiences | The clean test of *learning the game* from scratch          |
+| **Perfect knowledge**| Ceiling with recall — mostly a leak/sanity check               | Ceiling without recall — pure strategic upper bound         |
+
+What each contrast buys:
+
+- **Rows (human vs perfect), holding DB fixed** — how much of the difficulty is *informational* rather than strategic. This is the cheat-mode-as-oracle comparison.
+- **Columns (real vs randomised), holding information fixed** — how much performance is *recall* rather than skill. This is the contamination measurement, turned from a worry into a number.
+- **The interaction is the most interesting cell of all.** Prediction: on a real-world database, human-knowledge mode is partly *rescued* by priors — the model doesn't need to scout, because it already knows who is good. If that's right, real-world/human-knowledge will sit much closer to perfect-knowledge than randomised/human-knowledge does. World knowledge acting as a substitute for scouting is a genuinely publishable finding, and it only shows up in a crossed design.
+
+Note that real-world/human-knowledge is a legitimate condition, not a broken one. Some prior knowledge is *realistic* — every casual fan playing FM21 knows which teenagers turn into stars. Excluding it would model a player who doesn't exist.
+
+One sharp caveat to record, though: playing FM21 **in 2026** confers five years of hindsight that a player at release in 2020 never had. So this cell isn't "human parity" — it's "human plus hindsight," and it likely overstates the realistic human baseline. Worth naming in any write-up; splitting it further is probably over-engineering.
+
+### Randomising the database
+
+Options, cheapest first:
+
+1. **Fake players at game creation.** FM's new-game database setup is believed to offer a "fake players and staff" option, generating a fictional playing population while keeping real clubs and leagues. If present in FM21 this is a one-click solution. **Unverified — check before designing around it.**
+2. **Holiday forward 15–20 seasons.** Every real player retires and the world becomes entirely regens. Zero tooling, guaranteed clean. Cost: finances, reputations and squads drift a long way from the starting world, and AI transfer activity reshapes the landscape.
+3. **Pre-Game Editor** (free on Steam). Full editing power, but no "randomise 100k players" button — this means scripting mass edits, and is more work than the above.
+
+**Deliberately keep club-level knowledge.** Knowing that Man Utd are rich and Celtic dominate Scotland is not unfair — a human knows that too. The unfair advantage is *player-level* recall: knowing a 17-year-old becomes world class before scouting him. Randomising players kills exactly that while leaving realistic knowledge intact. That is the correct cut.
+
+### Regens, seeding and matched designs
+
+Whether FM reproduces identical regen intakes when the same save is replayed is **unknown and should be tested, not assumed** — FM deliberately resists some save-scumming, which suggests parts of the RNG re-roll on load.
+
+Don't build on reproducibility even if it exists. Instead:
+
+- **Matched seeds across models.** Generate a fixed set of saves (say 10) and run *every* model through *the same* worlds. Model A and Model B both get the wonderkid save and both get the barren one. This is a within-subjects design: compare paired differences, not noisy means. It dissolves the "one save gets a Ballon d'Or wonderkid, the next gets garbage" problem without needing engine determinism at all.
+- **Keep runs short.** Youth intake fires once a year. Over 1–3 seasons the regen lottery is a minor term; over 10 it dominates. Short runs also make replication affordable.
+- **Careful: intake quality is partly signal.** Youth facilities, junior coaching, recruitment and the Head of Youth Development all influence intake, and the agent controls them. A design that treats all intake variance as noise will also cancel a real capability difference. Short runs sidestep this, since those investments won't have matured.
+
+### You cannot instruct a model to forget
+
+"Forget everything you know about football besides the rules" **does not work, and attempting it is worse than not trying.**
+
+An instruction doesn't remove weights. It can suppress explicit *statements* of knowledge; it cannot remove that knowledge from the model's judgments. The model will still rate a high-press 4-2-3-1 well, still weight pace and dribbling the way football discourse does, and cannot unsee the name "Erling Haaland" in a squad list.
+
+The failure mode is the worst available for an eval: **suppression is unverifiable and looks like success.** The result is an agent that declines to admit what it knows while still acting on it — contamination that can no longer be detected, which is strictly worse than open contamination. It also risks collateral damage to the model's grasp of game *mechanics*, which we want to keep.
+
+Control the input, not the model:
+
+- **Randomised players** — the primary control. Nothing to recall.
+- **Anonymised serialisation** — we own the JSON layer, so simply omit names. "Player #4471, 24, LW" gives recall nothing to hook onto, and also blocks club identification. Caveat: on a *real* database this leaks, since a 20-year-old at Dortmund with 20 pace and 19 finishing is identifiable from the attribute fingerprint alone. On a randomised database it's airtight and largely redundant — which is itself evidence that randomisation is the load-bearing control.
+- **Measure contamination, don't assume it's handled.** Cheap probe: show the model a squad and ask it to name the club, or to rank players before it is allowed to scout. Better-than-chance performance means contamination — and that's a reportable number rather than a control we hope worked.
 
 ### Human-equivalence is more than information masking
 Masking attribute values controls *what* the agent knows. It does not control *how much it can look at*. A human cannot review 40 full player profiles before every team selection, scout 200 targets in one window, or be perfectly consistent across a season. An agent with unlimited reads of correctly-masked data still has a superhuman advantage.
@@ -81,6 +129,8 @@ The agent may only do what a human could do through the UI: set a lineup, offer 
 Football is high-variance; a single season is close to noise. Multiple seasons and multiple runs per condition are required, which makes **cost per season** the practical limiter on the whole experiment — measure it early (decision points per season × tokens per decision), because it determines how many conditions are affordable.
 
 Running the same scenario across models needs **save snapshots at every decision point**, not just decision logs. Build this into the Phase 4 loop from the start.
+
+Note how fast the 2×2 multiplies: 4 cells × N matched seeds × M models. At 10 seeds and 3 models that's 120 runs. This is the main argument for short scenarios (one transfer window, or ten fixtures with a fixed squad) rather than full seasons — and for measuring cost per run *before* committing to the full grid. It may be necessary to drop the real-world/perfect-knowledge cell, which is the least informative of the four, to keep the design affordable.
 
 ### Metrics
 Use FM's own board objectives (avoid relegation, finish top half, win promotion) as the primary outcome measure — they are game-native, human-legible, and better than anything we'd invent.
