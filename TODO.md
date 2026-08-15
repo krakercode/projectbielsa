@@ -10,16 +10,18 @@ Last updated: 2026-08-15
 
 ## Next up
 
-- [ ] **DECISION NEEDED: advance a copy of the save.** League table and fixture
-      discovery are blocked because the save is pre-season — every table cell is
-      zero, so there is no distinctive value to scan for. Copy the save, holiday
-      a few match days on the copy, then value-scan a known points total. Cheap
-      once done; blocked until agreed, since it changes game state.
-- [ ] **League tables** — blocked on the above. Two global club indexes were
-      found instead (reputation-ordered and alphabetical, both `Club*` at stride
-      8) — useful, but not tables. See `docs/phase1-notes.md`.
-- [ ] **Fixtures / schedule** — same blocker; far easier to identify once
-      results and dates exist.
+- [ ] **League table via iterative value scanning.** The structural approaches
+      are exhausted (three hypotheses ruled out — see `docs/phase1-notes.md`).
+      Do it the standard CE way instead: value-scan Crystal Palace's **7 points**
+      (the only 7 in the table), sim one match day, next-scan the new total,
+      repeat twice. Needs sim steps between scans, which is now established as
+      acceptable.
+- [ ] **Fixtures** — partial. 16-byte records holding a club pointer plus two
+      4-byte fields found at `CD45F680`, but not yet proven to be fixtures; no
+      scoreline or date identified. Same iterative-scan trick would work: scan a
+      known scoreline after a match day.
+- [ ] Confirm or refute: **is the table derived from results rather than
+      stored?** That's the leading hypothesis and it changes the target.
 - [ ] **Cache the located vector header per session** so `locate_vector()`'s
       ~2 minutes of scanning is paid once, not per dump.
 - [ ] **Cold-read demo**: pre-commit to a club by table position, state priors

@@ -337,7 +337,65 @@ These are genuinely useful — they give club reputation ranking and a way to
 enumerate every club in the loaded leagues, which scouting and transfers will
 need. They are **not** league tables.
 
-### Why the league table is blocked right now
+### Post-simulation attempt (3 Oct 2020, three match days played) — still unsolved
+
+The save was advanced so the table held real values (Man Utd P3 W3 GD9 Pts9,
+Leicester P3 W3 GD6 Pts9, Aston Villa P3 W1 D1 L1 GD-2 Pts4, West Brom P3 L3
+GD-8 Pts0). Three hypotheses tested and **all three ruled out**:
+
+1. **Table as an array of `Club*`** — the arrays found are global club indexes
+   (reputation-ordered, alphabetical), not per-competition tables.
+2. **P/W/D/L stored next to a club pointer** — scanned all 369 pointers to
+   Leicester's record; the sequence `[3,3,0,0]` appears near none of them, at
+   either 2- or 4-byte width, within a −64/+128 byte window.
+3. **P/W/D/L stored on the club object** — dumped 8 KB from four clubs with
+   different records (Leicester 3/3/0/0, Villa 3/1/1/1, Man City 3/3/0/0,
+   Everton 3/1/2/0) and looked for an offset where every club reads as its own
+   record. No offset matches, for P/W/D/L, for W/D/L, or even for points alone.
+
+**Leading hypothesis now: FM derives the table from results rather than storing
+it.** That would explain all three negatives at once, and it means the fixture
+list is the real target — the table falls out of it.
+
+Note also that goal difference is almost certainly derived (goals for minus
+goals against) rather than stored, so don't key searches on GD. That mistake
+cost the first attempt here.
+
+### Fixture list: partial progress
+
+`scripts/lua/probe_fixture.lua` scans for pointers to two clubs known to be
+playing each other (Man City v Everton, 3 Oct) and reports where those pointers
+sit close together. 20 co-located pairs found. The most structured:
+
+```
+CD45F680  +0  = 0x975B0CE8  (Man City)
+          +8  = 0x03010001
+          +12 = 0xFF00xxxx
+          +16 = 0x975AE420  (Everton)
+```
+
+So: **16-byte records, each holding a club pointer plus two 4-byte fields.** The
+same shape appears at `C29826D0` with 32-byte spacing. Not yet proven to be
+fixtures rather than another club list with per-entry metadata — no scoreline or
+date has been identified in the surrounding bytes.
+
+### Recommended next approach: iterative value scanning
+
+This is the technique that actually suits the problem and hasn't been tried,
+because until the save was advanced there were no values to scan for:
+
+1. Pick a club with a unique table value — Crystal Palace on **7 points** is the
+   only 7 in the table.
+2. CE value scan for 7 (4 bytes).
+3. Simulate one match day so Palace's total changes (7 → 8 or 10).
+4. "Changed value" / next-scan for the new total.
+5. Two or three iterations should reduce millions of hits to a handful.
+
+This is standard CE practice and is far more reliable than structural guessing.
+It needs the ability to advance the save between scans, which is now established
+as acceptable on a copy.
+
+### Why the league table was blocked before the save was advanced
 
 The save sits at 27 July 2020, before a ball is kicked. **Every table cell is
 zero** — P0 W0 D0 L0 GD0 Pts0 for all 20 clubs — and the on-screen table is
