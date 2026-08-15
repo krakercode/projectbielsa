@@ -1,8 +1,14 @@
 # FM21 AI Manager — Project Plan
 
-Goal: Claude plays Football Manager 2021 — both between matches (transfers, tactics, training, squad selection) and live during matches (subs, in-match tactics, touchline shouts) — with two selectable data modes:
-- Cheat mode — full memory access, sees everything including hidden attributes, true CA/PA, board finances, hidden morale/condition values.
-- Human mode — same action capabilities, but the data fed to Claude is filtered to only what an actual manager would know: scouted/revealed attribute ranges, not hidden true values.
+## What this project is
+
+**This is an evaluation project, not a bot.** The goal is to measure how well LLMs can *learn a complex game, play it efficiently, and meet objectives while operating under the same restrictions an unmodified human player has*. Football Manager is the testbed; beating the game is not the point, and a bot that wins by seeing hidden data has told us nothing.
+
+That framing drives every design decision below. When in doubt, prefer the option that produces a *measurable, fair, reproducible* result over the option that produces a stronger-playing agent.
+
+Mechanically it means: Claude plays FM21 both between matches (transfers, tactics, training, squad selection) and live during matches (subs, in-match tactics, touchline shouts), with two selectable data modes:
+- Human mode — the real experimental condition. Data is filtered to what an actual manager would know: scouted/revealed attribute ranges, not hidden true values.
+- Cheat mode — full memory access, including hidden attributes, true CA/PA, and hidden morale/condition. **Treat this as the oracle / upper bound**, not a coequal way to play: same model, same save, perfect information. The gap between the two modes measures how much of the difficulty is informational versus strategic.
 
 Foundation: FM21 is frozen (no more patches), so tooling built against it won't break under our feet. The base technique is Cheat Engine's Lua scripting layer attaching to fm.exe — this is what FMRTE, FMSE21, and the existing xAranaktu/FM21-Cheat-Table are all built on. That table already proves pointers exist and are findable for the current player/club/staff in a save.
 
@@ -47,6 +53,44 @@ Foundation: FM21 is frozen (no more patches), so tooling built against it won't 
 - Run the same save under both modes side by side to check human mode isn't leaking hidden values.
 - Tune how Claude is prompted as a manager — risk tolerance, communication style, how much reasoning to surface vs just act.
 - Stress-test the in-match loop on a full 90 minutes before trusting it unattended.
+
+## Experimental Design & Validity
+
+These are what make the results mean something. They are not polish to add at the end — several are cheap now and expensive to retrofit.
+
+### Training-data contamination (the biggest threat to "learn the game")
+A 2020 Premier League save is heavily represented in model pretraining. The model doesn't need to *learn* that Grealish is the best player at Aston Villa, or that a gegenpress 4-2-3-1 is strong — it half-remembers both. A good result is then ambiguous between "learned the game" and "recalled the world."
+
+Mitigations, strongest first: a custom/fictional database; a lower-league club where player knowledge is thin; or a far-future save where regens have replaced real players. At minimum run one contaminated and one clean scenario and compare — if performance collapses without real-world priors, that tells us what was actually being measured.
+
+### Human-equivalence is more than information masking
+Masking attribute values controls *what* the agent knows. It does not control *how much it can look at*. A human cannot review 40 full player profiles before every team selection, scout 200 targets in one window, or be perfectly consistent across a season. An agent with unlimited reads of correctly-masked data still has a superhuman advantage.
+
+So the human-equivalence contract also includes an **observation/action budget** — a finite number of queries/screens per game-week and a finite scout allocation. This is arguably a bigger fairness lever than value masking and much easier to omit by accident.
+
+### The write layer must be UI-equivalent by construction
+The agent may only do what a human could do through the UI: set a lineup, offer a contract, change a tactic. Never: write CA, set morale, edit a budget. This must be a structural property of the action API, not developer discipline — one violation invalidates a run. Log every write for audit. Likewise no save-scumming (reloading after a bad result) unless that is explicitly the thing being tested.
+
+### Baselines, or the numbers mean nothing
+"Finished 6th" is uninterpretable alone. Required controls:
+- FM's own AI managing the same club.
+- **A naive bot**: highest-CA available XI, default tactic, no transfers. In FM this is brutally strong and is the honest bar. If the LLM can't beat best-XI-by-CA, that is the headline finding.
+- Optionally a human run for calibration.
+
+### Variance and cost
+Football is high-variance; a single season is close to noise. Multiple seasons and multiple runs per condition are required, which makes **cost per season** the practical limiter on the whole experiment — measure it early (decision points per season × tokens per decision), because it determines how many conditions are affordable.
+
+Running the same scenario across models needs **save snapshots at every decision point**, not just decision logs. Build this into the Phase 4 loop from the start.
+
+### Metrics
+Use FM's own board objectives (avoid relegation, finish top half, win promotion) as the primary outcome measure — they are game-native, human-legible, and better than anything we'd invent.
+
+Because outcomes are noisy, also log **process metrics**, which converge much faster: did it rotate fatigued players, respond to injuries, stay within the wage budget, field a legal and balanced XI.
+
+### Leak audits — deliberately late
+Verifying that human mode doesn't leak hidden information is scheduled late (Phase 6), by decision. The accepted risk: if a leak turns out to have been present all along, every result collected before the audit is invalid and must be re-run.
+
+Cheap insurance, to do *early*: have the agent log explicit predictions about hidden values from day one, even though nobody analyses them until late. That makes the audit retrospective rather than a re-run — the test being whether human-mode accuracy exceeds what is achievable from visible information alone. A diff of the two modes' JSON dumps will not catch structural leaks (sequential IDs that only exist for discovered entities, list lengths implying how much is out there, orderings that reveal rank).
 
 ## Open Risks
 - FM21's anti-tamper protections could block Phase 0 outright — untested with our specific build.
