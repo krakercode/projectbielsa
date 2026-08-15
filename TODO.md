@@ -4,7 +4,7 @@ Sessions start cold, so this is the "what's next" list. `PLAN.md` is strategy,
 `docs/session-log/` is history, this is the queue. **Keep it current** — move
 items to Done with the commit that closed them, and delete stale entries.
 
-Last updated: 2026-08-15 (after the debugger/league-table session)
+Last updated: 2026-08-16 (table render loop found; Phase 2 is next)
 
 ---
 
@@ -27,22 +27,19 @@ in both modes. See `docs/manager-setup.md`.
 
 ## Next up
 
-- [ ] **League table — six approaches now failed**, but the debugger route opened
-      real ground (see `docs/phase1-notes.md` and
-      `docs/session-log/2026-08-15-debugger-league-table.md`). Next, in order:
-      1. **Break on the caller.** The render loop runs at constant `RSP=811ECF0`,
-         return chain `1440DB515` → `1440BE24A` → `1455A87E3`. An execute
-         breakpoint on `1440DB515` lands inside the loop where the iterator and
-         collection base are live. `scripts/lua/watch_table_render.lua` needs only
-         an address change.
-      2. **Dump `BBD9xxxx` wider.** `+0x30` is the club pointer, so these are
-         per-club competition records; stats aren't in the first 0x400. Re-run
-         `dump_league_rows.lua` with range 0x2000.
-      3. Still available: one more sim + next-scan for **5** to split the 5,081
-         survivors — the found-list is *still live in the CE GUI*, but it dies the
-         moment CE restarts.
-      4. Do **not** redo the `Club*` fixed-stride array scan; 919 hits × 17 strides
-         topped out at 7/20.
+- [x] **League table — render loop FOUND, league position readable.**
+      `fm.exe+1455A87E3`, `RBX` = club, visited in exact table order 1st→20th.
+      See `docs/phase1-notes.md` and
+      `docs/session-log/2026-08-16-table-render-loop.md`.
+- [ ] **P/W/D/L/Pts — confirmed NOT stored as integers.** Swept the whole render
+      path (5 structures + 15 per-club series, up to 8 KB each, widths 1/2/4).
+      FM derives the table from results. **Do not re-scan.** If the numbers are
+      wanted, decide between:
+      1. Intercepting the string formatting on the render path (`R8` carries
+         inline strings, so that is where the numbers become visible), or
+      2. OCR via `scripts/vision/` — arguably more human-faithful for the
+         human-knowledge condition, since it reads what a player actually sees.
+      Note position alone may be enough: it is `PLAN.md`'s primary outcome measure.
 - [ ] **Player season stats (apps/goals/ratings)** — promising accidental lead:
       the 100-byte-stride runs found by the played 3→4 scan are probably these,
       not table rows. Worth following; it's a Phase 1 deliverable in its own right.
@@ -51,11 +48,12 @@ in both modes. See `docs/manager-setup.md`.
       date identified.
 - [ ] Confirm or refute: **is the table derived from results rather than
       stored?** Still the leading hypothesis and it changes the target entirely.
-- [ ] **Locate the competition object.** Still not found, but no longer blind:
-      a competition-scoped collection of exactly the 20 PL clubs provably exists
-      (proven 2026-08-15 by breakpoint — one loop, alphabetical, constant `RSP`),
-      and `BBD9xxxx+0x30` is a per-club competition record holding its club
-      pointer. Getting the loop's collection base is item 1 above.
+- [ ] **Locate the competition object.** Still not found as a static structure,
+      but two of its loops are now known: the alphabetical 20-club walk
+      (`1440BCF1D`) and the ranked table walk (`1455A87E3`). `BBD9xxxx+0x30` is a
+      per-club competition record holding its club pointer. The iterator itself
+      was not visible even at 160 stack qwords, so the collection base sits
+      further up the frames or the loop is index-based.
 - [ ] **Cache the located vector header per session** so `locate_vector()`'s
       ~2 minutes of scanning is paid once, not per dump.
 - [ ] **Cold-read demo**: pre-commit to a club by table position, state priors

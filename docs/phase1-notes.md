@@ -473,16 +473,7 @@ negatives.
 **Sixth approach also ruled out: the 20 clubs are not a fixed-stride `Club*`
 array.** 919 anchor hits × 17 strides produced nothing above 7/20. Don't redo it.
 
-**Best remaining leads, in order:**
-
-1. **Break on the caller, not the callee.** The loop runs at constant
-   `RSP=811ECF0` with return chain `1440DB515` → `1440BE24A` → `1455A87E3`. An
-   execute breakpoint on `1440DB515` or `1440BE24A` lands *inside* the loop, where
-   the iterator and collection base are live. `scripts/lua/watch_table_render.lua`
-   already does everything needed bar the address.
-2. **Dump `BBD9xxxx` much wider.** `+0x30` proves these are per-club competition
-   records; the stats just aren't in the first 0x400. Re-run
-   `dump_league_rows.lua` with a 0x2000 range and the same ground-truth match.
+**Both leads were followed on 2026-08-16 — see below.**
 
 **Technique worth reusing generally:** capture N stack qwords at a breakpoint and
 look for a slot whose value moves by a *constant delta* between iterations — that
@@ -493,6 +484,60 @@ is what surfaced both per-club series. The stack grows down, so `RSP+N` walks
 `clubName`-style resolution of `[p+0xB8]+4` has false positives — UI descriptor
 objects resolve as clubs named `number`, `time`, `hashtag`, `person`, `team`.
 Filter on known club addresses when precision matters.
+
+### RESOLVED 2026-08-16: the render loop is found; the numbers are DERIVED
+
+Full account in `docs/session-log/2026-08-16-table-render-loop.md`.
+
+**`fm.exe+1455A87E3` IS the league-table render loop.** `RBX` holds the club
+object and the loop visits all 20 clubs **in exact league-table order**, at a
+constant `RSP` (`811DD30`):
+
+```
+Leicester | Man City | Man Utd | Liverpool | Crystal Palace | Aston Villa |
+Southampton | Arsenal | Everton | Sheff Utd | West Ham | Leeds | Wolves |
+Burnley | Chelsea | West Brom | Fulham | Tottenham | Newcastle | Brighton
+```
+
+1st→20th, matching the screen exactly. **League position is therefore readable
+today** via `scripts/lua/watch_render_caller.lua` — and position is `PLAN.md`'s
+primary outcome measure (board objectives), so this is the part that mattered most.
+
+**`fm.exe+1440DB515` is NOT the loop** — it is a generic name-formatting helper
+(12,582 hits per navigation, only 2 of 600 records touching a club). Don't break
+there.
+
+**P/W/D/L/Pts are not stored as integers anywhere on the render path.** Swept
+systematically, all at widths 1/2/4 against P/W/D/L/Pts/Pos:
+
+| Tested | Result |
+| --- | --- |
+| `CA22` per-club objects, 1 KB | no match |
+| `BBD9` per-club records, **8 KB** | no match |
+| `BBD9+0x38` sub-objects, 1 KB | no match |
+| 13 club-pointer arrays incl. entry payloads | no match |
+| **15 distinct per-club pointer series in the ranked frame, 2 KB each** | **no match** |
+
+That confirms this file's original hypothesis — FM derives the table from results
+rather than storing it — with a systematic sweep rather than a guess.
+Corroborating detail: `R8` in the ranked frame held `0x657473656369654C`, i.e. the
+bytes `L e i c e s t e` inline. **The render path passes strings, not numbers**,
+which is exactly why every integer scan has failed.
+
+**Do not re-scan for integer P/W/D/L/Pts.** If those values are genuinely wanted,
+the two viable routes are (a) intercept the string formatting on the render path,
+or (b) OCR via `scripts/vision/` — which for the *human-knowledge* condition is
+arguably more faithful anyway, since it reads exactly what a player sees.
+
+**New tooling, both CE-free** (CE's Lua engine is single-threaded and a long
+`AOBScan` blocks everything with no way to interrupt it):
+- `scripts/win/read_mem.ps1` — read fm.exe memory via `ReadProcessMemory`
+- `scripts/win/dump_many.ps1` — dump hundreds of regions in one pass
+- `scripts/win/focus.ps1` — reliable window focus (`SetForegroundWindow` alone
+  silently fails; needs `AttachThreadInput` + `SetWindowPos` + verify)
+
+Both readers are deliberately **read-only** (`PROCESS_VM_READ` only). The write
+layer is Phase 2 and must be UI-equivalent by construction — don't add a poke.
 
 ### Superseded: pre-simulation notes on why this was blocked
 
