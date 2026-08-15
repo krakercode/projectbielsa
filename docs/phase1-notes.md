@@ -410,10 +410,11 @@ none sits near an identifiable club pointer, club UID, or club row ID.
 
 ### Where that leaves the league table
 
-Five approaches have now failed: array of `Club*`; P/W/D/L near a club pointer;
-P/W/D/L on the club object; iterative value scan; AOB on the value pattern. The
-consistent theme is that **nothing linking a club to its record is stored the way
-we keep assuming**.
+Six approaches have now failed: array of `Club*`; P/W/D/L near a club pointer;
+P/W/D/L on the club object; iterative value scan; AOB on the value pattern; and
+(2026-08-15) the three per-club structures found on the render path via the
+debugger. The consistent theme is that **nothing linking a club to its record is
+stored the way we keep assuming**.
 
 Two candidate explanations remain, and they suggest different next moves:
 
@@ -433,6 +434,65 @@ CE's debugger instead — "Find out what accesses this address" on a surviving
 counter while the league table screen renders will point straight at the code
 that reads it, and the register state gives the structure base. That is a much
 stronger tool for this and has not been tried.
+
+### DEBUGGER ROUTE TRIED 2026-08-15 — table still unlocated, but real progress
+
+The debugger escalation above was taken. Full account in
+`docs/session-log/2026-08-15-debugger-league-table.md`. Headlines:
+
+**CE's debugger works on FM21.** Hardware access breakpoints *and* execute
+breakpoints set, fire and remove cleanly, FM stays responsive, no crash across a
+dozen arm/navigate/stop cycles. FM21's documented anti-tamper does not block it.
+This was previously an open question and it unlocks a whole class of technique.
+
+**A competition-scoped 20-club collection provably exists.** `fm.exe+1440BCF1D`
+sits on the club-name render path (`RBX` = club object, `RAX` = its name pointer).
+During a league-table render it is called **once per club, all 20 Premier League
+clubs, in alphabetical order, at an identical `RSP` (`811ECF0`)** — a single loop
+over a single collection. That is the first hard evidence of the competition
+object's club list. Note the collection is **alphabetical, not table-ordered**, so
+standings order is applied later.
+
+**All 20 PL club object addresses are now known** (recorded in
+`scripts/lua/find_competition.lua`), up from four.
+
+**Three per-club structures were found on the render path and all three were
+tested against the live table and ruled out:**
+
+| Series | Where | Verdict |
+| --- | --- | --- |
+| `CA22xxxx` | stack[10], immediate frame | No P/W/D/L/Pts at any offset in 0x400 (width 1/2/4). Vector at `+0x10` has sizes 0–69, unrelated to matches played. Nothing in writable memory points at it. |
+| `BBD9xxxx` | stack[77]/[102]/[115], caller frames | **`+0x30` is the club's own pointer for all 20** — a genuine per-club competition record. No table values in its first 0x400. |
+| `C28…/A60…` | `BBD9xxxx+0x38` | No match; best near-miss 8/20 = noise. |
+
+The matching was done against the real on-screen table (4 Oct 2020), and the
+transcription was validated by two invariants — `W+D+L == P` and `Pts == 3W+D`
+hold for all 20 rows — so the transcription is not the weak link in these
+negatives.
+
+**Sixth approach also ruled out: the 20 clubs are not a fixed-stride `Club*`
+array.** 919 anchor hits × 17 strides produced nothing above 7/20. Don't redo it.
+
+**Best remaining leads, in order:**
+
+1. **Break on the caller, not the callee.** The loop runs at constant
+   `RSP=811ECF0` with return chain `1440DB515` → `1440BE24A` → `1455A87E3`. An
+   execute breakpoint on `1440DB515` or `1440BE24A` lands *inside* the loop, where
+   the iterator and collection base are live. `scripts/lua/watch_table_render.lua`
+   already does everything needed bar the address.
+2. **Dump `BBD9xxxx` much wider.** `+0x30` proves these are per-club competition
+   records; the stats just aren't in the first 0x400. Re-run
+   `dump_league_rows.lua` with a 0x2000 range and the same ground-truth match.
+
+**Technique worth reusing generally:** capture N stack qwords at a breakpoint and
+look for a slot whose value moves by a *constant delta* between iterations — that
+is what surfaced both per-club series. The stack grows down, so `RSP+N` walks
+**up** into caller frames; 48 qwords was too shallow, 160 reached the caller.
+
+**Two API notes:** `AOBScan` returns `nil` (not an empty list) on zero hits. And
+`clubName`-style resolution of `[p+0xB8]+4` has false positives — UI descriptor
+objects resolve as clubs named `number`, `time`, `hashtag`, `person`, `team`.
+Filter on known club addresses when precision matters.
 
 ### Superseded: pre-simulation notes on why this was blocked
 

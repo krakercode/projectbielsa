@@ -4,7 +4,7 @@ Sessions start cold, so this is the "what's next" list. `PLAN.md` is strategy,
 `docs/session-log/` is history, this is the queue. **Keep it current** — move
 items to Done with the commit that closed them, and delete stale entries.
 
-Last updated: 2026-08-15
+Last updated: 2026-08-15 (after the debugger/league-table session)
 
 ---
 
@@ -27,14 +27,22 @@ in both modes. See `docs/manager-setup.md`.
 
 ## Next up
 
-- [ ] **League table — five approaches now failed** (see `docs/phase1-notes.md`).
-      Next, in order:
-      1. One more sim + next-scan for **5**, to split the 5,081 survivors. Per-club
-         rows should group ~17–20 at consistent stride; per-player groups are
-         ~14–16 per club.
-      2. If that fails, **switch to CE's debugger** — "Find out what accesses this
-         address" on a surviving counter while the table screen renders. Blind
-         scanning is exhausted; this has not been tried and is much stronger.
+- [ ] **League table — six approaches now failed**, but the debugger route opened
+      real ground (see `docs/phase1-notes.md` and
+      `docs/session-log/2026-08-15-debugger-league-table.md`). Next, in order:
+      1. **Break on the caller.** The render loop runs at constant `RSP=811ECF0`,
+         return chain `1440DB515` → `1440BE24A` → `1455A87E3`. An execute
+         breakpoint on `1440DB515` lands inside the loop where the iterator and
+         collection base are live. `scripts/lua/watch_table_render.lua` needs only
+         an address change.
+      2. **Dump `BBD9xxxx` wider.** `+0x30` is the club pointer, so these are
+         per-club competition records; stats aren't in the first 0x400. Re-run
+         `dump_league_rows.lua` with range 0x2000.
+      3. Still available: one more sim + next-scan for **5** to split the 5,081
+         survivors — the found-list is *still live in the CE GUI*, but it dies the
+         moment CE restarts.
+      4. Do **not** redo the `Club*` fixed-stride array scan; 919 hits × 17 strides
+         topped out at 7/20.
 - [ ] **Player season stats (apps/goals/ratings)** — promising accidental lead:
       the 100-byte-stride runs found by the played 3→4 scan are probably these,
       not table rows. Worth following; it's a Phase 1 deliverable in its own right.
@@ -43,8 +51,11 @@ in both modes. See `docs/manager-setup.md`.
       date identified.
 - [ ] Confirm or refute: **is the table derived from results rather than
       stored?** Still the leading hypothesis and it changes the target entirely.
-- [ ] **Locate the competition object.** Never found, and it's the plausible
-      owner of both the table and the fixture list. Currently the biggest gap.
+- [ ] **Locate the competition object.** Still not found, but no longer blind:
+      a competition-scoped collection of exactly the 20 PL clubs provably exists
+      (proven 2026-08-15 by breakpoint — one loop, alphabetical, constant `RSP`),
+      and `BBD9xxxx+0x30` is a per-club competition record holding its club
+      pointer. Getting the loop's collection base is item 1 above.
 - [ ] **Cache the located vector header per session** so `locate_vector()`'s
       ~2 minutes of scanning is paid once, not per dump.
 - [ ] **Cold-read demo**: pre-commit to a club by table position, state priors
@@ -98,3 +109,7 @@ script call produces a clean JSON snapshot of an entire save's key state" — ne
 - [x] `pCurrentClub` — needs the hook enabled *and* a club screen visited
       afterwards; all 30 club fields verified against Liverpool's page. Also
       retargets to any club you view, so opposition data is readable.
+- [x] **CE's debugger works on FM21** — access *and* execute hardware breakpoints
+      fire and clear cleanly with no crash; anti-tamper does not block them
+- [x] All 20 Premier League club object addresses captured
+      (`scripts/lua/find_competition.lua`)
