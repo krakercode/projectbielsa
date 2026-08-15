@@ -10,18 +10,24 @@ Last updated: 2026-08-15
 
 ## Next up
 
-- [ ] **League table via iterative value scanning.** The structural approaches
-      are exhausted (three hypotheses ruled out — see `docs/phase1-notes.md`).
-      Do it the standard CE way instead: value-scan Crystal Palace's **7 points**
-      (the only 7 in the table), sim one match day, next-scan the new total,
-      repeat twice. Needs sim steps between scans, which is now established as
-      acceptable.
+- [ ] **League table — five approaches now failed** (see `docs/phase1-notes.md`).
+      Next, in order:
+      1. One more sim + next-scan for **5**, to split the 5,081 survivors. Per-club
+         rows should group ~17–20 at consistent stride; per-player groups are
+         ~14–16 per club.
+      2. If that fails, **switch to CE's debugger** — "Find out what accesses this
+         address" on a surviving counter while the table screen renders. Blind
+         scanning is exhausted; this has not been tried and is much stronger.
+- [ ] **Player season stats (apps/goals/ratings)** — promising accidental lead:
+      the 100-byte-stride runs found by the played 3→4 scan are probably these,
+      not table rows. Worth following; it's a Phase 1 deliverable in its own right.
 - [ ] **Fixtures** — partial. 16-byte records holding a club pointer plus two
-      4-byte fields found at `CD45F680`, but not yet proven to be fixtures; no
-      scoreline or date identified. Same iterative-scan trick would work: scan a
-      known scoreline after a match day.
+      4-byte fields at `CD45F680`, not yet proven to be fixtures; no scoreline or
+      date identified.
 - [ ] Confirm or refute: **is the table derived from results rather than
-      stored?** That's the leading hypothesis and it changes the target.
+      stored?** Still the leading hypothesis and it changes the target entirely.
+- [ ] **Locate the competition object.** Never found, and it's the plausible
+      owner of both the table and the fixture list. Currently the biggest gap.
 - [ ] **Cache the located vector header per session** so `locate_vector()`'s
       ~2 minutes of scanning is paid once, not per dump.
 - [ ] **Cold-read demo**: pre-commit to a club by table position, state priors

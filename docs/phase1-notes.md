@@ -379,7 +379,62 @@ same shape appears at `C29826D0` with 32-byte spacing. Not yet proven to be
 fixtures rather than another club list with per-entry metadata — no scoreline or
 date has been identified in the surrounding bytes.
 
-### Recommended next approach: iterative value scanning
+### Iterative value scanning: done, and it worked mechanically
+
+Ran the full loop on 4 Oct 2020 after another match day:
+
+1. First scan, 4 bytes, exact value **3** (played) → **340,917** hits (writable
+   memory only, which is what kept it tractable).
+2. One match day simulated. Most clubs went to P4; West Ham, Newcastle (P3) and
+   Tottenham (P2) did not play.
+3. Next scan, exact value **4** → **5,081** survivors.
+
+`scripts/lua/export_foundlist.lua` dumps the surviving set out of the CE GUI for
+offline analysis without disturbing it.
+
+Analysing the survivors for regular spacing found arithmetic runs at a **100-byte
+stride**, lengths 15, 14, 13, 11. That looked like the table — until
+`dump_table_rows.lua` walked them and found **no club pointer anywhere in or
+around those rows**.
+
+**Most likely these are per-player appearance counters, not table rows.** Players
+who featured also went 3→4, and a run length of 13–15 matches a matchday squad
+far better than a 20-team division. That's a lead worth following separately —
+player season stats (apps, goals, ratings) are themselves a Phase 1 deliverable.
+
+### Fourth hypothesis also ruled out: row findable by value pattern
+
+`scripts/lua/scan_table_row.lua` AOB-scans for Aston Villa's record (P4 W2 D1 L1)
+as int8/int16/int32 little-endian runs: 1046 / 438 / — hits respectively, and
+none sits near an identifiable club pointer, club UID, or club row ID.
+
+### Where that leaves the league table
+
+Five approaches have now failed: array of `Club*`; P/W/D/L near a club pointer;
+P/W/D/L on the club object; iterative value scan; AOB on the value pattern. The
+consistent theme is that **nothing linking a club to its record is stored the way
+we keep assuming**.
+
+Two candidate explanations remain, and they suggest different next moves:
+
+1. **The table is derived from results.** Then there is nothing to find, and the
+   fixture/results list is the only real target.
+2. **The row exists but references its club indirectly** (an index into a
+   competition-local array, not a pointer or UID). Then it is only reachable from
+   the competition object, which we have never located.
+
+**Cheapest next step: one more sim + next-scan for 5.** That cuts the 5,081
+further and, crucially, lets the two populations be told apart — per-club rows
+should form a group of ~17–20 at consistent stride, whereas per-player groups
+are ~14–16 per club.
+
+**If that fails, switch technique entirely.** Blind scanning is exhausted; use
+CE's debugger instead — "Find out what accesses this address" on a surviving
+counter while the league table screen renders will point straight at the code
+that reads it, and the register state gives the structure base. That is a much
+stronger tool for this and has not been tried.
+
+### Superseded: pre-simulation notes on why this was blocked
 
 This is the technique that actually suits the problem and hasn't been tried,
 because until the save was advanced there were no values to scan for:
