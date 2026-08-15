@@ -6,6 +6,11 @@ items to Done with the commit that closed them, and delete stale entries.
 
 Last updated: 2026-08-16 (table render loop found; Phase 2 is next)
 
+> **Before using any hex address from a session log, read `docs/LIVE-STATE.md`.**
+> Code addresses (`fm.exe+...`) survive restarts; every heap address from the
+> 15–16 Aug sessions is only valid while that same `fm.exe` process is alive.
+> That file also lists how to re-derive each one from scratch.
+
 ---
 
 ## Manager stack (Qwen) — working, read-only
