@@ -10,10 +10,16 @@ Last updated: 2026-08-15
 
 ## Next up
 
-- [ ] **Fixtures / schedule** — visible on the Competitions and Schedule screens;
-      no memory structure located yet.
-- [ ] **League tables** — the full EPL table renders on the competition page, so
-      the data is there; find the backing structure.
+- [ ] **DECISION NEEDED: advance a copy of the save.** League table and fixture
+      discovery are blocked because the save is pre-season — every table cell is
+      zero, so there is no distinctive value to scan for. Copy the save, holiday
+      a few match days on the copy, then value-scan a known points total. Cheap
+      once done; blocked until agreed, since it changes game state.
+- [ ] **League tables** — blocked on the above. Two global club indexes were
+      found instead (reputation-ordered and alphabetical, both `Club*` at stride
+      8) — useful, but not tables. See `docs/phase1-notes.md`.
+- [ ] **Fixtures / schedule** — same blocker; far easier to identify once
+      results and dates exist.
 - [ ] **Cache the located vector header per session** so `locate_vector()`'s
       ~2 minutes of scanning is paid once, not per dump.
 - [ ] **Cold-read demo**: pre-commit to a club by table position, state priors

@@ -322,6 +322,44 @@ all.
 Recommendation: treat the two-pointermap compare as optional, and spend the
 effort on the Phase 1 exit criterion instead.
 
+## Club indexes: found. League table: blocked (see below)
+
+Hunting the league table turned up two global club arrays instead. Both are
+plain `Club*` arrays at 8-byte stride, walkable with
+`scripts/lua/dump_club_array.lua`:
+
+| Array | Contents |
+| --- | --- |
+| reputation-ordered | All 65 English clubs across loaded divisions, descending by reputation — Man City, Liverpool, Chelsea, Man Utd, Spurs, Arsenal… down to Lincoln, Rochdale, Plymouth Argyle. Relegated sides (Bournemouth, Watford) sit among Premier League clubs, confirming the sort is reputation, not division. |
+| alphabetical | All English clubs alphabetically. Confirmed by decoding the gaps: Arsenal → Aston Villa is 8 bytes (adjacent), Aston Villa → Chelsea is 216 bytes = exactly the 27 clubs alphabetically between them. |
+
+These are genuinely useful — they give club reputation ranking and a way to
+enumerate every club in the loaded leagues, which scouting and transfers will
+need. They are **not** league tables.
+
+### Why the league table is blocked right now
+
+The save sits at 27 July 2020, before a ball is kicked. **Every table cell is
+zero** — P0 W0 D0 L0 GD0 Pts0 for all 20 clubs — and the on-screen table is
+sorted alphabetically because there is nothing to sort by.
+
+That removes the technique that would normally crack this open: you find a table
+by scanning for a distinctive value (a club on 7 points, a goal difference of
+-3) and narrowing. With every field zero and every row identical, there is
+nothing to search for, and an array of 20 row-structs full of zeros is
+indistinguishable from any other zeroed memory.
+
+**Recommendation: advance the save several match days first**, then find the
+table by value-scanning a known points total. This needs a decision, since it
+changes game state — do it on a *copy* of the save, not the working one. The
+same applies to fixtures: results and dates become far easier to identify once
+some exist.
+
+Tooling written along the way and worth reusing:
+- `scripts/lua/probe_league.lua` — scans for pointers to several known clubs of
+  the same league and clusters the hits, reporting dominant stride per cluster.
+- `scripts/lua/dump_club_array.lua` — walks a `Club*` array and prints it.
+
 ## Next steps
 2. **Find what populates `pCurrentClub`** — see above. Until then the 30 club
    fields (finances, facilities, stadium) are untested, and club finances are
