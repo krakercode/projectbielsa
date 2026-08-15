@@ -39,8 +39,14 @@ local function say(...)
   end
 end
 
--- stack[10] per club, alphabetical, from data/snapshots/table_render.json
-ROW_OBJ = {
+-- UPDATE 2026-08-16: the CA22 series returned ZERO pointers (AOBScan -> nil), so
+-- nothing in writable memory points at those. Retargeted at the BBD9 series,
+-- which is the record-like one: BBD9+0x30 holds the club's own pointer for all
+-- 20, so these are genuine per-club competition records. All three per-club
+-- series are monotonic in club order with IRREGULAR gaps, which is what walking a
+-- sorted container of pointers to individually-allocated records looks like --
+-- so an array of pointers to these is exactly what the loop should hold.
+ROW_OBJ_CA22 = {
   { club = "Arsenal",        addr = 0xCA2243D0 },
   { club = "Aston Villa",    addr = 0xCA224488 },
   { club = "Brighton",       addr = 0xCA224F50 },
@@ -62,6 +68,31 @@ ROW_OBJ = {
   { club = "West Ham",       addr = 0xCA22A1F8 },
   { club = "Wolves",         addr = 0xCA22A590 },
 }
+
+ROW_OBJ_BBD9 = {
+  { club = "Arsenal",        addr = 0xBBD953F8 },
+  { club = "Aston Villa",    addr = 0xBBD954B0 },
+  { club = "Brighton",       addr = 0xBBD95F78 },
+  { club = "Burnley",        addr = 0xBBD96258 },
+  { club = "Chelsea",        addr = 0xBBD96818 },
+  { club = "Crystal Palace", addr = 0xBBD970B8 },
+  { club = "Everton",        addr = 0xBBD975C0 },
+  { club = "Fulham",         addr = 0xBBD978A0 },
+  { club = "Leeds",          addr = 0xBBD984D8 },
+  { club = "Leicester",      addr = 0xBBD98648 },
+  { club = "Liverpool",      addr = 0xBBD98870 },
+  { club = "Man City",       addr = 0xBBD98A98 },
+  { club = "Man Utd",        addr = 0xBBD98B50 },
+  { club = "Newcastle",      addr = 0xBBD99110 },
+  { club = "Sheff Utd",      addr = 0xBBD99F70 },
+  { club = "Southampton",    addr = 0xBBD9A308 },
+  { club = "Tottenham",      addr = 0xBBD9ADD0 },
+  { club = "West Brom",      addr = 0xBBD9B168 },
+  { club = "West Ham",       addr = 0xBBD9B220 },
+  { club = "Wolves",         addr = 0xBBD9B5B8 },
+}
+
+ROW_OBJ = ROW_OBJ_BBD9
 
 local STRIDES = { 8, 16, 24, 32, 40, 48, 64 }
 local ANCHOR  = 1
@@ -96,7 +127,12 @@ local function scoreGrid(hit, stride)
   return #list, list, lo
 end
 
-function find_row_array()
+function find_row_array(which)
+  ROW_OBJ = (which == "CA22") and ROW_OBJ_CA22 or ROW_OBJ_BBD9
+  -- repopulate the existing upvalue in place; reassigning would create a global
+  -- and leave scoreGrid() closed over the stale local
+  for k in pairs(byAddr) do byAddr[k] = nil end
+  for _, r in ipairs(ROW_OBJ) do byAddr[r.addr] = r.club end
   logf = io.open(LOG, "w")
   local anchor = ROW_OBJ[ANCHOR]
   say(string.format("find_row_array: scanning for pointers to %s's row object (%X)",
