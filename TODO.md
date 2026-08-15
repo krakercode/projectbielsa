@@ -8,6 +8,23 @@ Last updated: 2026-08-15
 
 ---
 
+## Manager stack (Qwen) — working, read-only
+
+Ollama + `qwen3:8b` installed, `scripts/manager/` runs `pick_lineup` end to end
+in both modes. See `docs/manager-setup.md`.
+
+- [ ] **Second model** — the Phase 4 exit criterion is the same task through two
+      adapters. `ClaudeProvider` is a stub that throws. Hosted model + API key,
+      or a second local model.
+- [ ] **Exercise the `tools` (agentic loop) strategy at least once.** It is
+      written but has never run — untested code, which is the exact failure mode
+      that bit this project before.
+- [ ] **Replace the placeholder human-mode masking.** It buckets true CA, which
+      still leaks ordering. Marked `masking: "placeholder-not-phase5"` in the
+      data. Do not publish anything off it.
+- [ ] Extract the prompt scaffold from `pick_lineup.js` into `prompts.js` when a
+      second decision event lands.
+
 ## Next up
 
 - [ ] **League table — five approaches now failed** (see `docs/phase1-notes.md`).

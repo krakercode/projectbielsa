@@ -18,6 +18,8 @@ Club reads are verified too — all 30 fields against a real club page. The hook
 
 Fixtures, league tables and the transfer shortlist aren't covered at all, so **Phase 1's exit criterion is not met.** See [TODO.md](TODO.md) for the live work queue and [docs/phase1-notes.md](docs/phase1-notes.md) for the memory structures and tooling.
 
+**A model can now be asked to manage** — Ollama + `qwen3:8b` run locally, and `scripts/manager/pick_lineup.js` takes a real squad dump, asks the model for a starting XI, validates it and logs the decision. Runs in ~6 seconds in both cheat and human mode. It is **read-only**: there is no write layer, so decisions are never applied to the game. Human-mode masking is an explicit placeholder, not Phase 5. See [docs/manager-setup.md](docs/manager-setup.md).
+
 **Phase 4 design work started early** — [docs/control-interface.md](docs/control-interface.md) works out how models actually drive the manager: an agentic tool-use loop (read tools + write tools per decision event) rather than one giant JSON-in/JSON-out call, where cheat/human mode plugs in, how manager "personality" (risk tolerance, transfer aggressiveness, etc.) gets configured separately from game state, and the model-agnostic adapter shape. Design only — no code yet, and it depends on Phase 1/2 read/write access existing first.
 
 Two separate logging conventions exist — don't confuse them:
