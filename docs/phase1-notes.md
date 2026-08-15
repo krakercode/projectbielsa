@@ -218,24 +218,81 @@ offset compensates):
 Two paths root in `eossdk-win64-shipping` (the Epic SDK) rather than `fm.exe` —
 almost certainly coincidental and should be discarded first.
 
-**These are unvalidated.** A pointer scan on a single snapshot finds paths that
-happen to work right now; most are coincidence. They only become trustworthy
-after filtering across a game restart, which hasn't been done — see below.
+### VALIDATED 2026-08-15: none of the 27 survive a restart
+
+Relaunched FM from cold, re-located the squad vector in the new process
+(header `53C19A0`, verified by dumping the correct 23 Villa players), then
+reopened `squadvec_L4.PTR` and let CE re-resolve every path. Result:
+
+- most break partway and show `-`
+- several resolve to garbage — `000009F1`, `00000F90`, three separate paths on `00578C28 = 0`
+- one (`fm.exe+070ACAD0` → `8, 1D0, 0, F0`) resolves to a live heap address, but not a header
+- **none resolves to `53C19A0`**
+
+The check was run *after* confirming the target was live in the process, so this
+is not the "maybe the structure isn't allocated" confound — it's a clean
+negative. A single-snapshot level-4 scan yielded no usable static path.
+
+**Useful technique:** reopening a `.PTR` in a fresh process is itself the
+survival test. CE re-resolves every path on load and shows what each points at,
+so you can read survivors straight off the list. No need to locate the target
+first, and much cheaper than the documented rescan-against-new-address flow.
+
+If a static path is wanted, the next escalation is the two-pointermap compare
+workflow (generate a pointermap now, restart, generate another, scan with
+"compare results with other saved pointermap(s)"), which is what CE's own
+warning points at. **But see "Do we even need a static path?" below.**
+
+## Locating the vector after a restart: `locate_vector.lua`
+
+**This is the working procedure. It reproduces across restarts.**
+
+```lua
+dofile([[C:\Users\User\Desktop\projectbielsa\scripts\lua\locate_vector.lua]])
+locate_vector()                        -- prints the header address
+dump_squad_to_file(nil, "<header>")    -- exact squad
+```
+
+Verified live 2026-08-15 from a cold launch: located header `53C19A0` and dumped
+the identical 23 Villa players, in the same order, as the previous session's
+run against a completely different heap layout.
+
+Four things were needed to make it reliable, each fixing an observed failure:
+
+1. **Club-constrained walking.** A run only extends through players of the
+   *same club* as the anchor. Walking on "looks like a player" alone bridges
+   into neighbouring heap allocations — that produced a valid 28-entry vector
+   belonging to **Newport County** while anchored on a Villa player.
+2. **Gap tolerance (2 slots).** A squad vector legitimately contains players
+   whose club reads elsewhere (loanees out) or whose name chain transiently
+   fails. Stopping at the first mismatch truncated a 23-squad to runs of 14 and 17.
+3. **Probe `begin` in both directions.** If a run is truncated at its *front*,
+   the real `begin` is *behind* the run start, so forward-only probing can never
+   find the header. This alone was the difference between failure and success.
+4. **Corroborate with several squad members, and require anchor containment.**
+   Harvest other same-club players from the anchor's runs, then require the
+   located vector to contain them. Single-anchor discovery failed three times.
+
+Do **not** go back to "longest run wins" — arena and league-wide lists are
+longer (a 297-entry block was observed).
+
+## Do we even need a static path?
+
+Worth stating plainly, because it reframes the remaining work: **a static
+pointer path is an optimisation, not a blocker.** `locate_vector()` already
+produces exact squads from cold with no hardcoded addresses. What a static path
+would buy is (a) skipping ~2 minutes of scanning per session and (b) possibly
+enumerating *any* club without selecting one of its players first.
+
+(a) is solved more cheaply by caching the header for the session. (b) is the
+genuinely valuable part — but note the Newport County accident proves every club
+has its own vector, so a per-club locator may get there without a static path at
+all.
+
+Recommendation: treat the two-pointermap compare as optional, and spend the
+effort on the Phase 1 exit criterion instead.
 
 ## Next steps
-
-1. **Validate the pointer paths across a restart.** This is what turns the 27
-   candidates into a usable static path, and it's the single highest-value item.
-   Procedure: restart FM and load the save; re-locate the vector header in the
-   new process (`dump_squad.lua`'s scan to find the array, then
-   `who_points_here.lua` on the array start to find its header); reopen
-   `D:\ptrscan\squadvec_L4.PTR` in CE and use **Pointer scanner → "Rescan memory
-   — removes pointers not pointing to the right address"** with the new address.
-   Repeat over a second restart to kill remaining coincidences. Whatever
-   survives becomes the primary resolution path in `dump_squad.lua`, replacing
-   the per-call memory scan and the hand-found header address.
-   Remember that a restart also means re-attaching CE, re-enabling all three
-   hook scripts, and re-selecting a player.
 2. **Find what populates `pCurrentClub`** — see above. Until then the 30 club
    fields (finances, facilities, stadium) are untested, and club finances are
    needed for any transfer decision.

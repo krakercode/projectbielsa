@@ -51,6 +51,46 @@ CE re-resolved all 27 paths in the fresh process. Outcome:
 - **The validation is confounded** by not being able to confirm the target exists, as noted above. It answers "are these paths usable" (no) but not "were they all coincidence" (unknown).
 - One earlier `locate_vector` run returned Newport County's squad and was briefly taken at face value before the club column was checked.
 
+## Addendum — locator fixed, validation redone cleanly
+
+Continued after the above. Rewrote `locate_vector.lua` around the method that
+actually worked on 2026-08-14 (corroborate with several squad members) plus
+three further fixes, each driven by a live failure:
+
+1. **Club-constrained walking** — a run only extends through players of the same
+   club as the anchor. This structurally prevents the bridging that produced
+   Newport County's vector.
+2. **Gap tolerance of 2 slots** — squads legitimately contain players whose club
+   reads elsewhere (loanees out) or whose name chain transiently fails. Stopping
+   at the first mismatch truncated a 23-man squad to runs of 14 and 17.
+3. **Probe `begin` in both directions** — this was the actual blocker. A run
+   truncated at its *front* has its real `begin` *behind* the run start, so
+   forward-only probing could never find the header no matter how good the runs got.
+
+**Result: located header `53C19A0` from cold and dumped the identical 23 Villa
+players, same order, as the previous session's run against a completely
+different heap layout.** The locator is now reproducible across restarts.
+
+**Validation redone without the confound.** With the target confirmed live,
+reopened `squadvec_L4.PTR` — resolution was byte-for-byte identical to the
+earlier attempt, and **none of the 27 paths resolves to `53C19A0`**. So the
+negative result stands and is now clean: a single-snapshot level-4 pointer scan
+produced no usable static path.
+
+**Reframing worth recording:** a static path is an *optimisation, not a
+blocker*. `locate_vector()` already produces exact squads from cold. The
+remaining value would be enumerating any club without selecting one of its
+players — and the Newport accident proves every club has its own vector, so a
+per-club locator may get there without a static path at all. Two-pointermap
+compare is now marked optional in `docs/phase1-notes.md`.
+
+Also added `TODO.md` as a live work queue, since "next steps" were scattered
+across three documents and sessions start cold.
+
+Revised assessment of the session's goals: **(1) validation — achieved, clean
+negative. (2) `pCurrentClub` — still not attempted, now the oldest open item.
+(3) cold read — still not attempted.**
+
 ---
 
 ## Next session should probably
