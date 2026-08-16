@@ -64,6 +64,38 @@ function scan_u32(decValue, tag)
   print(string.format("scan_u32: %d hit(s) -> %s", n, out))
 end
 
+-- Scan for an arbitrary byte pattern.
+--
+-- Motivation: the eleven copies of the selection list are serialized records with
+-- inline display names. The authoritative store almost certainly is not -- it
+-- should be a compact array of player UIDs in positional order. Two consecutive
+-- starters' UIDs as an 8-byte pattern is a very selective probe for exactly that,
+-- and it does not depend on knowing the record layout in advance.
+function scan_aob(aob, tag)
+  tag = tag or "aob"
+  local out = REPO .. [[\data\snapshots\aob_]] .. tag .. ".json"
+  print(string.format("scan_aob: scanning for '%s'  (tag '%s')", aob, tag))
+
+  local ok, res = pcall(AOBScan, aob, "+W")
+  if not ok or not res then
+    print("scan_aob: no hits")
+    local f = io.open(out, "w")
+    if f then f:write(string.format('{"aob":"%s","tag":"%s","count":0,"hits":[]}', aob, tag)); f:close() end
+    return
+  end
+  local hits = {}
+  for i = 0, res.Count - 1 do hits[#hits+1] = '"' .. res[i] .. '"' end
+  local n = res.Count
+  res.destroy()
+
+  local f = io.open(out, "w")
+  if not f then print("scan_aob: cannot write " .. out) return end
+  f:write(string.format('{"aob":"%s","tag":"%s","count":%d,"hits":[%s]}',
+    aob, tag, n, table.concat(hits, ",")))
+  f:close()
+  print(string.format("scan_aob: %d hit(s) -> %s", n, out))
+end
+
 function scan_ptr(hexAddr, tag)
   tag = tag or "scan"
   local val = tonumber(hexAddr, 16)

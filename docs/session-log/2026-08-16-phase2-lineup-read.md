@@ -119,6 +119,51 @@ certainly a UI data model, not the authoritative tactic store — see below. So
   The authoritative selection store is unlocated, and that is the whole remaining
   substance of Phase 2.
 
+## Addendum — hunting the authoritative store
+
+Continued after the above, using `scripts/lua/watch_write.lua` (new) and
+`scan_aob()` added to `scripts/lua/scan_ptr.lua`.
+
+**A write breakpoint on a UID slot fired, but the writer is generic memcpy.** Put
+`bptWrite` on `DF9B0711` (the DL slot in one copy), changed the DL player, trapped
+**3 writes — all at `RIP=7FFA7D7844D7`**, which is outside fm.exe's range
+(`~0x140000000`) and so is a system-DLL `memcpy`/`memmove`. The copies are bulk
+assembled by serialization code, not written field by field. The fm.exe return
+addresses on the stack are string/container helpers, so following them is
+expensive archaeology rather than a short hop to the source.
+
+**Four further negatives on the canonical store**, all clean:
+
+| Hypothesis | Test | Result |
+| --- | --- | --- |
+| Field on the player record | 23 records × 2 KB, before/after a swap | zero bytes changed |
+| Packed array of UIDs in positional order | AOB scan, two adjacent starters' UIDs | no hits |
+| Packed array of player pointers in positional order | AOB scan, two adjacent starters' pointers | no hits |
+| Any contiguous XI array in positional order | re-analysed all 15 `find_lineup` candidates | every one is in **squad** order, none positional |
+
+So selection is almost certainly stored as **per-slot records with position, role
+and duty interleaved** (which is what a tactic slot actually needs), or in a
+non-contiguous structure reachable only from the tactic object — which remains
+unlocated, exactly like the competition object did.
+
+**What this changes.** `PLAN.md` Phase 2 says to prefer direct memory writes and
+treat simulated clicks as "a last resort". The evidence now argues the other way
+for `set_lineup()` specifically:
+
+1. **UI simulation is definitionally UI-equivalent**, which `PLAN.md` elsewhere
+   requires as a *structural* property — "not developer discipline ... one
+   violation invalidates a run". Clicking the swap dropdown cannot violate it.
+2. **It is already proven.** Four lineup swaps were driven end to end through the
+   UI this session, including reading back the result from memory to confirm.
+3. **A raw memory write would bypass game logic.** Changing a lineup triggers
+   validation, role/duty assignment and tactical familiarity. Writing a UID into a
+   slot risks a state the engine never agreed to — a correctness problem, not just
+   a fairness one.
+4. **The memory route is blocked anyway** until the tactic object is found.
+
+That is a genuine architectural decision rather than a detail, so it is being put
+to the user rather than settled unilaterally.
+
 ---
 
 ## Next session should probably
