@@ -18,7 +18,31 @@ Club reads are verified too — all 30 fields against a real club page. The hook
 
 Fixtures, league tables and the transfer shortlist aren't covered at all, so **Phase 1's exit criterion is not met.** See [TODO.md](TODO.md) for the live work queue and [docs/phase1-notes.md](docs/phase1-notes.md) for the memory structures and tooling.
 
-**A model can now be asked to manage** — Ollama + `qwen3:8b` run locally, and `scripts/manager/pick_lineup.js` takes a real squad dump, asks the model for a starting XI, validates it and logs the decision. Runs in ~6 seconds in both cheat and human mode. It is **read-only**: there is no write layer, so decisions are never applied to the game. Human-mode masking is an explicit placeholder, not Phase 5. See [docs/manager-setup.md](docs/manager-setup.md).
+**Phase 2 (write layer) and Phase 4 (the loop) both work.**
+
+`scripts/manager/run_decision.js` reads the live game, asks a model for a starting
+XI, applies it, verifies the result against the game, and logs everything needed
+to replay the decision — **no manual step and no hardcoded addresses**. That is
+PLAN.md's Phase 4 exit criterion. Verified live with both a deterministic
+best-XI-by-CA baseline (9 slots changed) and `qwen3:8b` (7 slots changed), each
+ending `set_lineup: verified` and confirmed on FM's own tactics screen. The model
+loop runs end to end in ~86 seconds.
+
+The write layer is **UI-driven by construction** — it drags players on the tactics
+screen exactly as a human would — because PLAN.md requires UI-equivalence as a
+structural property rather than developer discipline. Memory is read-only
+throughout; see the note at the top of `scripts/lua/actions.lua` for why a
+memory-write path is deliberately *not* implemented.
+
+Cheat Engine is no longer needed for the routine loop: `scripts/win/scan_mem.ps1`
+scans 2.4 GB in ~5.5 s and `scripts/manager/read_squad.js` reads the whole live
+squad in ~6 s (against ~2 minutes via CE), anchored on player UIDs and Row IDs
+from `data/roster/` — game data that survives restarts, unlike any address.
+
+Still open: the agent can pick a team but **cannot advance the game**, so it
+cannot yet play a season. Human-mode masking remains an explicit placeholder, not
+Phase 5. See [docs/manager-setup.md](docs/manager-setup.md) and
+[docs/LIVE-STATE.md](docs/LIVE-STATE.md).
 
 **Phase 4 design work started early** — [docs/control-interface.md](docs/control-interface.md) works out how models actually drive the manager: an agentic tool-use loop (read tools + write tools per decision event) rather than one giant JSON-in/JSON-out call, where cheat/human mode plugs in, how manager "personality" (risk tolerance, transfer aggressiveness, etc.) gets configured separately from game state, and the model-agnostic adapter shape. Design only — no code yet, and it depends on Phase 1/2 read/write access existing first.
 
@@ -35,8 +59,11 @@ Two separate logging conventions exist — don't confuse them:
 - `docs/session-log/` — per-*dev*-session log of what was done, why, and what's still open (see `TEMPLATE.md`)
 - `docs/manager-log/TEMPLATE.md` — template for the in-game AI manager's own post-play-session reflection (Phase 4+)
 - `cheat-table/` — the FM21 Cheat Engine table (`.CT`) and notes on pointers found in it
-- `scripts/lua/` — Cheat Engine Lua scripts (state dump, write actions) — run inside Cheat Engine attached to `fm.exe`
-- `scripts/python/` — the orchestration controller (Phase 4+) that talks to Cheat Engine and to Claude
+- `scripts/lua/` — Cheat Engine Lua scripts (exploration, breakpoints, state dumps) — run inside Cheat Engine attached to `fm.exe`. No longer needed for the routine loop.
+- `scripts/manager/` — the orchestration loop, decision events, and the live readers/writers (Node)
+- `scripts/win/` — PowerShell primitives: memory scan/read, synthetic input, window focus
+- `data/roster/` — per-club UIDs, Row IDs, names and position ratings. **Game data, stable across restarts** — this is what every locator anchors on
+- `scripts/python/` — an unused stub from the original plan; the controller is Node (see `docs/manager-setup.md` for why)
 - `data/` — local JSON state snapshots, decision logs, and manager session reports (gitignored — saves and dumps are local only)
 
 ## Requirements

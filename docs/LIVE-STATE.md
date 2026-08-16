@@ -71,9 +71,12 @@ Return chain observed from `1440BCF1D`: `1440DB515` → `1440BE24A` → `1455A87
 
 ## Perishable: the 15–16 Aug session snapshot
 
-**Valid only while `fm.exe` PID 22352 (started 2026-08-15 16:02) keeps running.**
-If FM has restarted, every address below is meaningless — delete them from your
-working set and re-derive.
+> **STALE AS OF 2026-08-16 16:00.** FM was closed and relaunched (it is now a
+> different process with a completely different heap), so **every heap address in
+> this section is dead.** They are kept only as a worked example of the record
+> layouts. Nothing in the current tooling needs them: `read_squad.js` and
+> `locate_lineup.js` both find what they need from cold, anchored on
+> `data/roster/`. This is the point of the durable/perishable split.
 
 Aston Villa save, 4 Oct 2020, ~4 match days in.
 
@@ -130,31 +133,63 @@ which is exactly why those are the durable asset.
 
 ---
 
-## Phase 2 tooling (all CE-free, all read-only on memory)
+## The tooling (all CE-free, all read-only on memory)
+
+**Nothing below needs a hardcoded address.** Everything anchors on
+`data/roster/*.json` — UIDs, Row IDs, names and position ratings, which are game
+data and identical across restarts.
 
 | Script | Purpose |
 | --- | --- |
-| `scripts/manager/set_lineup.js` | Apply an XI by driving the tactics UI, then verify from memory. Needs no address. |
-| `scripts/manager/locate_lineup.js` | Find the selection list from cold, anchored on the roster |
-| `scripts/manager/read_lineup.js` | Parse a dumped region into an XI |
-| `scripts/win/scan_mem.ps1` | Pattern scan over writable memory — 2.5 GB in ~2.4 s |
-| `scripts/win/read_mem.ps1`, `dump_many.ps1` | Read memory; page-tolerant, zero-fill unmapped pages |
+| `scripts/manager/run_decision.js` | **The loop**: read live → decide → apply → verify → log |
+| `scripts/manager/read_squad.js` | Live squad read, ~6 s from cold, no Cheat Engine |
+| `scripts/manager/pick_lineup.js` | The decision event; `--strategy baseline` is model-free |
+| `scripts/manager/set_lineup.js` | Apply an XI by driving the tactics UI, then verify |
+| `scripts/manager/locate_lineup.js` | Find the selection list from cold (~13 s) |
+| `scripts/manager/tactic.js` | Slot names/order/geometry — single source of truth |
+| `scripts/manager/prompts.js` | Prompt scaffolds per decision event |
+| `scripts/win/scan_mem.ps1` | Multi-pattern scan over writable memory — 2.4 GB in ~5.5 s |
+| `scripts/win/read_mem.ps1`, `dump_many.ps1` | Read memory; page-tolerant, zero-fill unmapped |
 | `scripts/win/click.ps1` | Synthetic mouse via `SendInput`; `-Drag` for list-row drags |
 | `scripts/win/focus.ps1` | Reliable window focus |
 
-Two UI facts these depend on: FM **accepts synthetic input**, and the swap
-dropdown's candidate order is **not stable** — so lineup changes are made by
-dragging between list rows, whose positions are fixed.
+Facts these depend on, all learned the hard way:
+
+- FM **accepts synthetic input** (`SendInput`).
+- The swap dropdown's candidate order is **not stable**, so lineup changes are
+  made by **dragging between list rows**, whose positions are fixed.
+- **The selection list does not exist until the Tactics screen has been drawn.**
+  In a freshly launched fm.exe, `locate_lineup` finds nothing; visit Tactics
+  first. `run_decision.js` does this automatically.
+- **A squad read returns all 23 registered players; only ~19 are pickable.** The
+  live selection list is the availability set.
+- **Which copy is live cannot be read** — stale generations survive and can
+  outnumber live ones. The rule that works: every drag moves toward the target,
+  so the live copy is whichever has the **fewest remaining differences**.
+- **Row ID (`0x278`) and UID (`0x27C`) are adjacent**, so together they are an
+  8-byte signature that finds a player record with no false positives.
+
+### Quick start after a restart
+
+```bash
+node scripts/manager/run_decision.js --strategy baseline --dry-run   # decide, don't act
+node scripts/manager/run_decision.js --mode cheat                    # full loop, Qwen
+```
+Needs FM running with the save loaded, and `ollama serve` for the model paths
+(`C:\Users\User\AppData\Local\Programs\Ollama\ollama.exe` — it is **not** on PATH).
 
 ## Saves
 
-- Live save: `Documents/Sports Interactive/Football Manager 2021/games/Claude Anthropic - Aston Villa.fm`, saved 2026-08-16 12:15 (4 Oct 2020).
-- Backups: `D:\projectbielsa-save-backup\` — `2026-08-15-2323\`, `2026-08-16-0035-eod\`,
-  and `2026-08-16-1215-phase2\` (most recent).
-- The save now has a tactic: **Fluid Counter-Attack / Cautious 4-3-3 DM Wide**,
+- Live save: `Documents/Sports Interactive/Football Manager 2021/games/Claude Anthropic - Aston Villa.fm`, saved 2026-08-16 16:29 (still 4 Oct 2020 — the game has never been advanced).
+- Backups: `D:\projectbielsa-save-backup\` — `2026-08-15-2323\`,
+  `2026-08-16-0035-eod\`, `2026-08-16-1215-phase2\`, and
+  `2026-08-16-1629-loop-working\` (most recent).
+- The save has a tactic: **Fluid Counter-Attack / Cautious 4-3-3 DM Wide**,
   created 2026-08-16 because Phase 2 is impossible without one (FM had been
-  auto-picking for the four matches played). Current XI ends with Targett at DL
-  and Davis at STC, from `set_lineup.js` runs.
+  auto-picking for the four matches played).
+- The XI on disk is **Qwen's**, from the last `run_decision.js` run: Martínez,
+  Cash, Konsa, Mings, Targett, McGinn, Sanson, Nakamba, Traoré, El Ghazi,
+  Watkins. Not a result — just the last thing the loop applied.
 
 ## Not mine, still uncommitted
 
