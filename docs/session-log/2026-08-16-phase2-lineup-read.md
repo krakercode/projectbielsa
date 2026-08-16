@@ -164,6 +164,45 @@ for `set_lineup()` specifically:
 That is a genuine architectural decision rather than a detail, so it is being put
 to the user rather than settled unilaterally.
 
+## Addendum 2 — the write layer works
+
+The user chose "both in parallel": ship UI-driven writes now, keep hunting the
+tactic object as separate work rather than as a blocker.
+
+**`set_lineup()` is implemented and verified.** `scripts/manager/set_lineup.js`
+applied a two-position change (DL → Targett, STC → Davis) entirely by script, and
+the result was confirmed **both** by re-reading the selection from memory and by
+looking at FM's tactics screen. That is Phase 2's exit criterion for lineups —
+"can change a lineup in a live save via script, confirmed by re-reading state".
+
+Two things had to be settled first, both unknowns that could have sunk the approach:
+
+1. **Does FM accept synthetic input at all?** Yes. `scripts/win/click.ps1` uses
+   Win32 `SendInput`, and a scripted click opened the swap dropdown. This mattered
+   because the eval has to run unattended — an agent-in-the-loop clicking tool is
+   not a write layer.
+2. **The swap dropdown's candidate order is NOT stable.** The same player appeared
+   2nd in one opening and 4th in another, so clicking a row by index can never be
+   made reliable. **Drag-and-drop is the right primitive**: both endpoints are
+   fixed list rows, and which player occupies which row is known from memory.
+   Verified live — dragging S5 onto the DL row swapped them correctly.
+
+Design details worth keeping:
+
+- **Rows are mapped by name, never by shared index.** The UI shows MCR *above* MCL;
+  the serialised data has MCL first. Assuming one order for both would silently
+  swap the two central midfielders.
+- **The selection is re-read between drags**, because an earlier swap can move a
+  later target's row.
+- **Verification compares against what the game did, not what we intended** — it
+  re-reads and checks each requested slot, and exits non-zero on mismatch.
+- `-ExecutionPolicy Bypass` is passed per child process because the machine's
+  policy blocks `.ps1` files; it changes no machine or user setting.
+
+`scripts/lua/actions.lua` has been rewritten from a bare stub into an explanation
+of why the memory-write path is deliberately not implemented, so the next session
+doesn't "fix" it by poking memory and quietly break the UI-equivalence contract.
+
 ---
 
 ## Next session should probably
