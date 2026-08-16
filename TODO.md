@@ -75,6 +75,37 @@ Read half done 2026-08-16, write half untouched. See
 Wide) and a Quick Pick XI, created 2026-08-16 because Phase 2 is impossible
 without one — FM had been auto-picking for the four matches played.
 
+## Phase 4 — closing the loop (state → decision → action)
+
+Plan: join `pick_lineup` (decide) + `set_lineup` (act) + `read_lineup` (verify)
+into one autonomous run. That is PLAN.md's Phase 4 exit criterion.
+
+- [x] **Multi-pattern memory scan** — `scripts/win/scan_mem.ps1` now takes many
+      patterns in one pass, dispatched on first byte. 23 signatures over 2.4 GB in
+      ~5.5 s, versus ~55 s for 23 separate passes.
+- [x] **CE-free live squad read** — `scripts/manager/read_squad.js`. Finds all 23
+      player records from cold with nothing hardcoded, and emits the exact JSON
+      shape `squad_state.js` already consumes. Verified against a fresh fm.exe
+      process: 23/23 names, 752 immutable fields identical to the UI-verified CE
+      dump, Grealish's full record correct including the 4-level club chain.
+      **~6 s, versus ~2 minutes for the Cheat Engine route.**
+      - Records are located by an 8-byte signature: Row ID (`0x278`) and UID
+        (`0x27C`) are **adjacent**. A bare 4-byte UID returns hundreds of false
+        hits; the pair returns exactly one per player.
+      - Offsets come from `cheat-table/fields.json`, never hand-copied.
+      - Pointer chains are followed **generically** — depth varies (Contract is
+        1 deref, names 2, Team Club 3), and hardcoding a depth crashes.
+- [ ] **Make `pick_lineup` slot-based.** It returns `{id, position}` in FM's
+      position vocabulary; `set_lineup` fills the active tactic's *slots*. Nothing
+      bridges them and a heuristic bridge would mis-assign players. Give the model
+      the actual slot list and have it fill those. Extract the scaffold to
+      `prompts.js` at the same time.
+- [ ] **`run_decision.js`** — read live → decide → apply → verify → log, with
+      `--dry-run` that decides without acting. Log the exact state shown to the
+      model so decisions can be replayed.
+- [ ] **Deterministic `--strategy baseline`** (best XI by CA). Tests the loop
+      without model variance, and is PLAN.md's own honest bar.
+
 ## Next up
 
 - [x] **League table — render loop FOUND, league position readable.**

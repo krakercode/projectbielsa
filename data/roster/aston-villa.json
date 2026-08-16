@@ -1,9 +1,10 @@
 {
  "club": "Aston Villa",
- "note": "UIDs, names and position ratings are game data, stable across restarts - unlike addresses. Position ratings are 1-20.",
+ "note": "UIDs, Row IDs, names and position ratings are game data - stable across restarts, unlike addresses. Row ID (0x278) and UID (0x27C) are ADJACENT in the player record, so together they form an 8-byte signature used to locate records. Position ratings are 1-20.",
  "players": [
   {
    "uid": 5112064,
+   "rowId": 5052,
    "first": "Tom",
    "last": "Heaton",
    "pos": {
@@ -26,6 +27,7 @@
   },
   {
    "uid": 12009828,
+   "rowId": 7123,
    "first": "Ahmed",
    "last": "Elmohamady",
    "pos": {
@@ -48,6 +50,7 @@
   },
   {
    "uid": 13104090,
+   "rowId": 7202,
    "first": "Marvelous",
    "last": "Nakamba",
    "pos": {
@@ -70,6 +73,7 @@
   },
   {
    "uid": 13112706,
+   "rowId": 7227,
    "first": "Bertrand",
    "last": "Traoré",
    "pos": {
@@ -92,6 +96,7 @@
   },
   {
    "uid": 13156726,
+   "rowId": 7272,
    "first": "Mahmoud",
    "last": "Hassan",
    "pos": {
@@ -114,6 +119,7 @@
   },
   {
    "uid": 14020367,
+   "rowId": 7443,
    "first": "Emiliano",
    "last": "Martínez",
    "pos": {
@@ -136,6 +142,7 @@
   },
   {
    "uid": 18059845,
+   "rowId": 7762,
    "first": "Björn",
    "last": "Engels",
    "pos": {
@@ -158,6 +165,7 @@
   },
   {
    "uid": 19302456,
+   "rowId": 8204,
    "first": "Douglas Luiz",
    "last": "Soares de Paulo",
    "pos": {
@@ -180,6 +188,7 @@
   },
   {
    "uid": 28025341,
+   "rowId": 8803,
    "first": "Jed",
    "last": "Steer",
    "pos": {
@@ -202,6 +211,7 @@
   },
   {
    "uid": 28067800,
+   "rowId": 9230,
    "first": "Jack",
    "last": "Grealish",
    "pos": {
@@ -224,6 +234,7 @@
   },
   {
    "uid": 28084863,
+   "rowId": 9312,
    "first": "Matthew",
    "last": "Targett",
    "pos": {
@@ -246,6 +257,7 @@
   },
   {
    "uid": 28107730,
+   "rowId": 9778,
    "first": "Keinan",
    "last": "Davis",
    "pos": {
@@ -268,6 +280,7 @@
   },
   {
    "uid": 29009633,
+   "rowId": 11064,
    "first": "Neil",
    "last": "Taylor",
    "pos": {
@@ -290,6 +303,7 @@
   },
   {
    "uid": 29074544,
+   "rowId": 11424,
    "first": "Tyrone",
    "last": "Mings",
    "pos": {
@@ -312,6 +326,7 @@
   },
   {
    "uid": 29085910,
+   "rowId": 11502,
    "first": "Kortney",
    "last": "Hause",
    "pos": {
@@ -334,6 +349,7 @@
   },
   {
    "uid": 29110623,
+   "rowId": 11702,
    "first": "Ollie",
    "last": "Watkins",
    "pos": {
@@ -356,6 +372,7 @@
   },
   {
    "uid": 29141827,
+   "rowId": 12127,
    "first": "Ezri",
    "last": "Konsa",
    "pos": {
@@ -378,6 +395,7 @@
   },
   {
    "uid": 29147447,
+   "rowId": 12195,
    "first": "Matty",
    "last": "Cash",
    "pos": {
@@ -400,6 +418,7 @@
   },
   {
    "uid": 37041913,
+   "rowId": 16015,
    "first": "Anwar",
    "last": "El Ghazi",
    "pos": {
@@ -422,6 +441,7 @@
   },
   {
    "uid": 61043070,
+   "rowId": 22385,
    "first": "John",
    "last": "McGinn",
    "pos": {
@@ -444,6 +464,7 @@
   },
   {
    "uid": 63028929,
+   "rowId": 22693,
    "first": "Wesley",
    "last": "Moraes Ferreira da Silva",
    "pos": {
@@ -466,6 +487,7 @@
   },
   {
    "uid": 85046988,
+   "rowId": 28568,
    "first": "Morgan",
    "last": "Sanson",
    "pos": {
@@ -488,6 +510,7 @@
   },
   {
    "uid": 28058224,
+   "rowId": 9059,
    "first": "Ross",
    "last": "Barkley",
    "pos": {
