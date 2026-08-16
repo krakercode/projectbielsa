@@ -49,17 +49,37 @@ if ($h -eq [IntPtr]::Zero) { Write-Error "OpenProcess failed (err $([Runtime.Int
 $addr = [Convert]::ToInt64($Address.TrimStart('0','x','X').PadLeft(1,'0'), 16)
 if ($Address -notmatch '^0[xX]') { $addr = [Convert]::ToInt64($Address, 16) }
 
+# Read page by page rather than in one call. A single large read fails outright
+# the moment the range touches an unmapped page, which happens routinely when a
+# window is centred on a hit near an allocation boundary. Unreadable pages are
+# left as zeroes and counted, so callers get the data that does exist instead of
+# an error.
 $buf = New-Object byte[] $Length
-$read = [IntPtr]::Zero
-$ok = [MemRead]::ReadProcessMemory($h, [IntPtr]$addr, $buf, $Length, [ref]$read)
+$page = 4096
+$okPages = 0; $badPages = 0
+for ($off = 0; $off -lt $Length; $off += $page) {
+  $want = [Math]::Min($page, $Length - $off)
+  $tmp = New-Object byte[] $want
+  $read = [IntPtr]::Zero
+  if ([MemRead]::ReadProcessMemory($h, [IntPtr]($addr + $off), $tmp, $want, [ref]$read) -and [int]$read -gt 0) {
+    [Array]::Copy($tmp, 0, $buf, $off, [int]$read)
+    $okPages++
+  } else {
+    $badPages++
+  }
+}
 [MemRead]::CloseHandle($h) | Out-Null
 
-if (-not $ok) { Write-Error "ReadProcessMemory failed at 0x$($addr.ToString('X')) (err $([Runtime.InteropServices.Marshal]::GetLastWin32Error()))"; exit 1 }
+if ($okPages -eq 0) {
+  Write-Error "ReadProcessMemory failed for every page at 0x$($addr.ToString('X'))"
+  exit 1
+}
 
 if ($AsJson) {
-  $obj = [ordered]@{ address = $addr.ToString('X'); length = $Length; bytes = $buf }
+  $obj = [ordered]@{ address = $addr.ToString('X'); length = $Length; bytes = $buf
+                     pagesOk = $okPages; pagesUnreadable = $badPages }
   $obj | ConvertTo-Json -Compress -Depth 3 | Out-File -FilePath $AsJson -Encoding utf8
-  "wrote $AsJson ($([int]$read) bytes read)"
+  "wrote $AsJson ($okPages page(s) read, $badPages unreadable)"
 } else {
   # qword view, which is what pointer arrays need
   for ($i = 0; $i + 8 -le $Length; $i += 8) {

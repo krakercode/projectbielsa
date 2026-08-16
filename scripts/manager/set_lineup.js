@@ -19,12 +19,15 @@
 // reliable. Dragging has fixed endpoints at both ends: a known list row to a known
 // list row. Verified live: dragging S5 onto the DL row swapped them correctly.
 //
-//   node scripts/manager/set_lineup.js --base DF9B0611 --dry-run
-//   node scripts/manager/set_lineup.js --base DF9B0611 --set DL=29009633,STC=28107730
+//   node scripts/manager/set_lineup.js --dry-run
+//   node scripts/manager/set_lineup.js --set DL=29009633,STC=28107730
+//   node scripts/manager/set_lineup.js --base DF9B0611 --set ...   # skip the lookup
 //
-// --base is the address of the selection list. It is a heap address and dies with
-// the process; re-derive it by scanning for a known starter's UID and finding the
-// cluster (scripts/lua/scan_ptr.lua -> scan_u32, then look for the run of entries).
+// --base is optional. The selection list is a heap allocation: it dies when
+// fm.exe restarts, and can even be freed and reused mid-run. So by default the
+// address is located fresh via locate_lineup.js, which anchors on player UIDs and
+// names -- game data that is stable across restarts, unlike any address. Pass
+// --base only to skip that lookup when you already know the address.
 
 const { execFileSync } = require('child_process');
 const fs = require('fs');

@@ -203,6 +203,59 @@ Design details worth keeping:
 of why the memory-write path is deliberately not implemented, so the next session
 doesn't "fix" it by poking memory and quietly break the UI-equivalence contract.
 
+## Addendum 3 — locating the list from cold, and a nasty discovery
+
+`set_lineup.js` took a `--base` address that dies with the process, so the whole
+write layer was one restart from useless. Fixing that produced two new tools and
+one finding that would otherwise have silently corrupted results.
+
+**`scripts/win/scan_mem.ps1` — a CE-free memory scanner.** Enumerates committed
+writable regions via `VirtualQueryEx` and searches them, with the inner byte loop
+in C# because PowerShell over ~1 GB is hopeless. **2.5 GB scanned in 2.4 s**,
+against 20–45 s for CE's `AOBScan` — and it doesn't block anything, unlike CE's
+single-threaded Lua engine.
+
+**`scripts/manager/locate_lineup.js` — finds the selection list from cold.** It
+anchors on player UIDs and names, which are *game* data and identical across
+restarts, unlike every address in the process. A persisted roster
+(`data/roster/aston-villa.json`) supplies them. For each roster player it builds
+the exact record signature (`u32 UID | u32 name length | name`) and scans for it,
+then finds valid record chains around each hit.
+
+**Confirmed the list really does move**: the base found earlier that day
+(`DF9B0611`) no longer parsed at all by the time this ran, without any restart.
+
+**The nasty discovery: copies go stale, and majority does not save you.** FM keeps
+many copies of the list and old generations survive. Measured live:
+
+```
+ 23 copies  ... DL=Taylor    STC=Watkins     <- STALE (pre-change)
+ 21 copies  ... DL=Targett   STC=Davis       <- LIVE  (matches the UI)
+  7 copies  ... DL=Targett   STC=Watkins     <- partially stale
+```
+
+The stale generation **outnumbered** the live one, so a count-based rule picks the
+wrong answer with full confidence. A separate family had Björn Engels — an injured
+centre-back, GK rating 1 — in the GK slot, and *that* family was the most numerous
+of all before filtering.
+
+Two rules were added, and only one of them actually works:
+
+- **Plausibility (works):** the GK slot must hold a goalkeeper. Roster now carries
+  position ratings, so this is checkable. Kills the Engels family outright.
+- **Majority (does not work):** as measured above.
+
+So **liveness cannot be established by reading alone**. It is inherently
+behavioural — the live copy is the one that changes when the lineup changes. The
+locator therefore now prints a loud warning listing every variant and states that
+its pick is not guaranteed current, rather than silently returning a stale XI.
+
+Two bugs found on the way, both mine: `chainAt` required records to be laid end to
+end when they are actually ~0x25 bytes apart (so it found exactly one record and
+stopped), and `dump_many.ps1` returned *empty* buffers for any window touching an
+unmapped page, which made the locator look like it had found nothing. Both readers
+are now page-tolerant and zero-fill what they cannot read.
+
 ---
 
 ## Next session should probably

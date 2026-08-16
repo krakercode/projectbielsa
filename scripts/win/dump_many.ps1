@@ -41,17 +41,33 @@ $items = Get-Content $Spec -Raw | ConvertFrom-Json
 $results = New-Object System.Collections.ArrayList
 $ok = 0
 
+# Read page by page. A single large read fails outright as soon as the range
+# touches one unmapped page, which is common when a window is centred on a scan
+# hit near an allocation boundary -- and it silently returned EMPTY buffers, which
+# made a locator look like it had found nothing. Unreadable pages stay zero.
+$page = 4096
 foreach ($it in $items) {
   $addr = [Convert]::ToInt64($it.addr, 16)
   $buf = New-Object byte[] $Length
-  $read = [IntPtr]::Zero
-  $good = [MemReadMany]::ReadProcessMemory($h, [IntPtr]$addr, $buf, $Length, [ref]$read)
-  if ($good) { $ok++ }
+  $okPages = 0; $badPages = 0
+  for ($off = 0; $off -lt $Length; $off += $page) {
+    $want = [Math]::Min($page, $Length - $off)
+    $tmp = New-Object byte[] $want
+    $read = [IntPtr]::Zero
+    if ([MemReadMany]::ReadProcessMemory($h, [IntPtr]($addr + $off), $tmp, $want, [ref]$read) -and [int]$read -gt 0) {
+      [Array]::Copy($tmp, 0, $buf, $off, [int]$read)
+      $okPages++
+    } else {
+      $badPages++
+    }
+  }
+  if ($okPages -gt 0) { $ok++ }
   [void]$results.Add([ordered]@{
     label = $it.label
     addr  = $it.addr
-    ok    = [bool]$good
-    bytes = if ($good) { $buf } else { @() }
+    ok    = ($okPages -gt 0)
+    pagesUnreadable = $badPages
+    bytes = $buf
   })
 }
 

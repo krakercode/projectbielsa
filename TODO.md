@@ -56,10 +56,20 @@ Read half done 2026-08-16, write half untouched. See
       the eleven readable copies are UI models bulk-assembled by a system-DLL
       memcpy. Needed for a memory-write path, and probably the owner of the
       authoritative selection.
-- [ ] **Re-derive the selection-list base address automatically.** `set_lineup.js`
-      currently takes `--base` and that address is perishable. It needs a locator
-      (scan a known starter's UID, find the cluster) the way `locate_vector()`
-      does for the squad.
+- [x] **Locate the selection list from cold** — `scripts/manager/locate_lineup.js`,
+      anchoring on UIDs/names from `data/roster/` (game data, stable across
+      restarts) with `scripts/win/scan_mem.ps1` (CE-free, 2.5 GB in ~2.4 s).
+      Confirmed the list really does move: an address found hours earlier no
+      longer parsed, with no restart.
+- [ ] **Resolve which copy is LIVE — this is the real remaining gap.** FM keeps
+      many copies and stale generations survive and can *outnumber* the live one
+      (measured 23 stale vs 21 live), so no count-based rule is safe. The GK-slot
+      plausibility filter works and is in; majority does not. Liveness is
+      inherently **behavioural**: the live copy is the one that changes when the
+      lineup changes. `set_lineup.js` already acts, so it should apply its change,
+      re-read every candidate, and keep whichever base reflects it — then cache
+      that base for the session. Until then `locate_lineup.js` warns loudly and
+      its pick is **not** guaranteed current.
 
 **Note:** this save now has a tactic (Fluid Counter-Attack / Cautious 4-3-3 DM
 Wide) and a Quick Pick XI, created 2026-08-16 because Phase 2 is impossible
