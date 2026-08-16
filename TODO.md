@@ -30,6 +30,33 @@ in both modes. See `docs/manager-setup.md`.
 - [ ] Extract the prompt scaffold from `pick_lineup.js` into `prompts.js` when a
       second decision event lands.
 
+## Phase 2 — write layer (the critical path)
+
+Read half done 2026-08-16, write half untouched. See
+`docs/session-log/2026-08-16-phase2-lineup-read.md`.
+
+- [x] **Read the selected XI** — `scripts/manager/read_lineup.js` parses the
+      selection list (XI in positional order + 8 subs), verified against the
+      Tactics screen player-for-player.
+- [x] Ruled out: selection is **not** a field on the player record (swapping a
+      starter changed zero bytes across all 23 records at 2 KB each).
+- [ ] **Find the AUTHORITATIVE selection store.** The structure found has ELEVEN
+      identical copies and carries inline display names — a UI data model. Writing
+      to it would likely change only what is drawn. Best route: a **write**
+      breakpoint (`bptWrite`) on one of the UID slots, to catch the code that
+      populates it from the canonical structure.
+- [ ] **Decide memory-write vs UI-simulation, explicitly.** `PLAN.md` requires the
+      write layer to be UI-equivalent *by construction*. Driving the swap dropdown
+      is definitionally UI-equivalent and is already proven to work (two swaps
+      driven end to end this session); a memory write is faster but needs its
+      fairness property argued, not assumed.
+- [ ] `set_lineup()` / `set_tactic()` in `scripts/lua/actions.lua` are still stubs
+      that throw.
+
+**Note:** this save now has a tactic (Fluid Counter-Attack / Cautious 4-3-3 DM
+Wide) and a Quick Pick XI, created 2026-08-16 because Phase 2 is impossible
+without one — FM had been auto-picking for the four matches played.
+
 ## Next up
 
 - [x] **League table — render loop FOUND, league position readable.**
