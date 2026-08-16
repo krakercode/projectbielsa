@@ -122,23 +122,46 @@ function detail(p, idx, mode) {
   return out;
 }
 
+function uidOf(p) {
+  return (((p || {})['_'] || {})['Dont touch'] || {}).UID;
+}
+
 /**
- * Load a squad snapshot produced by scripts/lua/dump_squad.lua.
+ * Load a squad snapshot (from scripts/manager/read_squad.js, or the older
+ * scripts/lua/dump_squad.lua output -- same shape).
+ *
  * @param {string} path
  * @param {"cheat"|"human"} mode
+ * @param {{availableUids?: Set<number>}} [opts]
+ *
+ * AVAILABILITY MATTERS. A squad read returns every REGISTERED player -- 23 for
+ * Villa -- but only those fit and eligible can actually be picked; the matchday
+ * list was 19, with four injured or unavailable. Without filtering, a selector
+ * happily picks an injured player and the write layer then fails with "not in the
+ * matchday squad". Pass the UIDs FM currently offers (from locate_lineup.js) and
+ * the rest are dropped before anyone gets to choose them.
+ *
+ * Note ids are indices into the FILTERED list, so they stay contiguous and match
+ * what the model is shown.
  */
-function loadSquad(path, mode = 'cheat') {
+function loadSquad(path, mode = 'cheat', opts = {}) {
   const raw = JSON.parse(fs.readFileSync(path, 'utf8'));
-  const players = raw.players || [];
+  let players = raw.players || [];
+  const all = players.length;
+  if (opts.availableUids && opts.availableUids.size) {
+    players = players.filter((p) => opts.availableUids.has(uidOf(p)));
+  }
   return {
     source: path,
     mode,
     squad_array: raw.squad_array,
     squad_count: raw.squad_count,
+    registered_count: all,
+    available_count: players.length,
     players,
     summary: players.map((p, i) => summarise(p, i, mode)),
     detailFor: (id) => (players[id] ? detail(players[id], id, mode) : null),
   };
 }
 
-module.exports = { loadSquad, summarise, detail, toDisplay, caBucket };
+module.exports = { loadSquad, summarise, detail, toDisplay, caBucket, uidOf };

@@ -60,10 +60,17 @@ function signatureOf(player) {
   return [...b].map(x => x.toString(16).padStart(2, '0').toUpperCase()).join(' ');
 }
 
-function scan(pattern, tag) {
-  const out = path.join(TMP_DIR, 'locate_' + tag + '.json');
-  ps(SCAN, ['-Pattern', pattern, '-Out', out, '-Max', '400']);
-  return readJson(out).hits || [];
+// One pass for EVERY anchor. Scanning per anchor meant up to 23 sequential
+// sweeps of ~2.4 GB, which dominated the decision loop's wall clock; scan_mem.ps1
+// takes many patterns at once and dispatches on first byte, so the whole roster
+// costs about what one player used to.
+function scanAll(players) {
+  const patFile = path.join(TMP_DIR, 'locate_patterns.json');
+  const out = path.join(TMP_DIR, 'locate_hits.json');
+  fs.writeFileSync(patFile, JSON.stringify(
+    players.map((p) => ({ label: String(p.uid), pattern: signatureOf(p) }))));
+  ps(SCAN, ['-PatternFile', patFile, '-Out', out, '-Max', '60']);
+  return readJson(out).byLabel || {};
 }
 
 // Dump every hit's window in ONE PowerShell call. Spawning a process per hit was
@@ -144,30 +151,37 @@ function main() {
   let best = null;
   const candidates = [];
   const showAll = argv.includes('--all');
-  for (let i = 0; i < roster.players.length && !best; i++) {
-    const p = roster.players[i];
-    const hits = scan(signatureOf(p), 'anchor');
-    if (!asJson) console.log('  anchor ' + (p.first + ' ' + p.last).padEnd(24) +
-                             ' -> ' + hits.length + ' hit(s)');
-    if (!hits.length) continue;
+  const byLabel = scanAll(roster.players);
+  const totalHits = Object.values(byLabel).reduce((n, h) => n + h.length, 0);
+  if (!asJson) console.log(`  ${totalHits} hit(s) across ${roster.players.length} anchors`);
 
-    const starts = hits.slice(0, 16).map(h => parseInt(h, 16) - WINDOW_BACK);
-    const bufs = dumpWindows(starts, WINDOW_BACK + WINDOW_FWD);
-
-    bufs.forEach((buf, idx) => {
-      // The anchor may be mid-list, so consider chains starting anywhere in the
-      // window rather than assuming the hit is the start. Keep only maximal ones:
-      // a chain starting one record later is a suffix, not a separate list.
-      for (let o = 0; o + 12 <= buf.length; o++) {
-        const c = chainAt(buf, o, uidSet);
-        if (c.length < MIN_CHAIN) continue;
-        const base = starts[idx] + o;
-        const uids = c.map(r => r.uid);
-        const dup = uids.length !== new Set(uids).size;
-        candidates.push({ base, records: c, dup });
-      }
-    });
+  // Collect windows around every hit, deduped -- several anchors land in the same
+  // list, and dumping the same window repeatedly is pure waste.
+  const seen = new Set();
+  const starts = [];
+  for (const hits of Object.values(byLabel)) {
+    for (const h of hits.slice(0, 8)) {
+      const s = parseInt(h, 16) - WINDOW_BACK;
+      const bucket = s >> 12;                    // one window per ~4 KB page
+      if (seen.has(bucket)) continue;
+      seen.add(bucket);
+      starts.push(s);
+    }
   }
+
+  const bufs = dumpWindows(starts, WINDOW_BACK + WINDOW_FWD);
+  bufs.forEach((buf, idx) => {
+    // The anchor may be mid-list, so consider chains starting anywhere in the
+    // window rather than assuming the hit is the start.
+    for (let o = 0; o + 12 <= buf.length; o++) {
+      const c = chainAt(buf, o, uidSet);
+      if (c.length < MIN_CHAIN) continue;
+      const base = starts[idx] + o;
+      const uids = c.map(r => r.uid);
+      const dup = uids.length !== new Set(uids).size;
+      candidates.push({ base, records: c, dup });
+    }
+  });
 
   // Collapse suffix-chains: keep only the longest chain per distinct end address.
   const byEnd = new Map();

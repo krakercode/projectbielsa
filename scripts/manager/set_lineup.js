@@ -222,66 +222,90 @@ function main() {
     return;
   }
 
-  const planIdx = plans.findIndex(p => p.length > 0);
-  const plan = plans[planIdx];
-  console.log('\nplanned drags (from copy 0x' + bases[planIdx] + '):');
-  plan.forEach(p => console.log('  ' + p.from + ' -> ' + p.to + '  (uid ' + p.uid + ')'));
+  // Show the shortest outstanding plan -- i.e. the most up-to-date copy's view.
+  const shortest = plans.filter(p => p.length).sort((a, b) => a.length - b.length)[0];
+  console.log('\noutstanding changes (' + shortest.length + '):');
+  shortest.forEach(p => console.log('  ' + p.from + ' -> ' + p.to + '  (uid ' + p.uid + ')'));
   if (args.dryRun) { console.log('\n--dry-run, nothing applied'); return; }
 
   ps(FOCUS, ['-ProcessId', String(fmPid())]);
 
-  // LIVENESS. FM keeps many copies of the selection list and stale generations
-  // survive -- measured 23 stale copies against 21 live, so no count-based rule
-  // is safe. The only reliable test is behavioural: the live copy is the one that
-  // CHANGES when the lineup changes. We are about to change it anyway, so the
-  // first drag doubles as the calibration.
-  let liveBase = args.base;
-  const before = liveBase ? null : new Map(bases.map(b => [b, xiSig(readSelection(b))]));
+  // LIVENESS, by "closest to target".
+  //
+  // Earlier attempts tried to identify one live copy and then track it. That does
+  // not survive contact with reality: FM recycles these buffers constantly, and
+  // after an action the live data can be in a buffer that did not exist when we
+  // located. Both failure modes were observed -- a nine-drag plan silently
+  // stopping after one drag, and every located copy going stale mid-run while the
+  // game itself had changed correctly.
+  //
+  // The robust rule: every drag moves the team TOWARD the target, so among all
+  // readable copies the live one is whichever has the FEWEST remaining
+  // differences. Stale generations are by definition further behind. That needs
+  // no calibration, self-corrects after any recycle, and cannot be fooled by
+  // stale copies outnumbering live ones.
+  // Locating from scratch costs a full memory scan, so the candidate list is
+  // CACHED and merely re-read (cheap dumps) each iteration. A re-scan happens
+  // only when the cached copies stop being usable -- either none is readable, or
+  // none is making progress, which is the signal that FM has moved the live data
+  // into a buffer allocated after we last looked.
+  let cachedBases = args.base ? [args.base] : null;
 
-  // First drag: taken from a possibly-stale copy, purely to make SOMETHING change
-  // so the live copy reveals itself.
-  const first = plan[0];
-  console.log('  dragging ' + first.from + ' -> ' + first.to);
-  drag(first.from, first.to);
-
-  if (!liveBase) {
-    const changed = bases.filter(b => xiSig(readSelection(b)) !== before.get(b));
-    if (!changed.length) {
-      console.error('\nno copy changed after a drag -- cannot identify the live one, ' +
-                    'refusing to report a possibly stale result');
-      process.exit(6);
+  const evaluate = (list) => {
+    let best = null;
+    for (const b of list) {
+      const es = readSelection(b);
+      if (!es) continue;
+      const p = planFrom(es);
+      if (!p) continue;
+      if (!best || p.length < best.plan.length) best = { base: b, entries: es, plan: p };
     }
-    liveBase = changed[0];
-    console.log('  live copy identified: 0x' + liveBase +
-                ' (' + changed.length + ' of ' + bases.length + ' copies updated)');
-  }
+    return best;
+  };
 
-  // From here work only against the live copy, re-planning each time. This also
-  // repairs the first drag if it was planned off a stale copy and did the wrong
-  // thing -- a drag is a swap, so re-dragging undoes it.
-  for (let i = 0; i < 24; i++) {
-    const p = planFrom(readSelection(liveBase));
-    if (!p || !p.length) break;
-    const step = p[0];
-    console.log('  dragging ' + step.from + ' -> ' + step.to + '  (live)');
+  const bestLive = (force = false) => {
+    if (!cachedBases || force) cachedBases = args.base ? [args.base] : getVariants();
+    let best = evaluate(cachedBases);
+    if (!best && !force && !args.base) {
+      cachedBases = getVariants();
+      best = evaluate(cachedBases);
+    }
+    return best;
+  };
+
+  let liveBase = null;
+  let done = false;
+  let lastRemaining = Infinity;
+  for (let i = 0; i < 30; i++) {
+    let cur = bestLive();
+    // No progress since the last drag means our cached copies have all gone
+    // stale -- the live data is somewhere we have not looked. Re-scan once.
+    if (cur && cur.plan.length >= lastRemaining && !args.base) {
+      const rescanned = bestLive(true);
+      if (rescanned && rescanned.plan.length < cur.plan.length) cur = rescanned;
+    }
+    if (!cur) { console.error('  no readable copy of the selection list'); break; }
+    liveBase = cur.base;
+    if (!cur.plan.length) { done = true; break; }
+    lastRemaining = cur.plan.length;
+    const step = cur.plan[0];
+    console.log(`  dragging ${step.from} -> ${step.to}  (${cur.plan.length} left, copy 0x${cur.base})`);
     drag(step.from, step.to);
   }
+  if (!done) console.log('  (did not reach the target; verifying actual state)');
+  if (!liveBase) { console.error('\ncould not read the selection list at all'); process.exit(6); }
 
-  // Verify against what the game actually did, not against what we intended.
-  // If the live buffer was recycled since the last drag, locate again rather than
-  // trusting whatever now sits at that address.
-  entries = readSelection(liveBase);
-  if (!entries) {
-    console.log('  live copy was recycled; locating again for verification');
-    const fresh = getVariants().filter(b => readSelection(b) !== null);
-    if (!fresh.length) {
-      console.error('\ncannot re-locate a valid copy to verify against');
-      process.exit(6);
-    }
-    liveBase = fresh[0];
-    entries = readSelection(liveBase);
+  // Verify against what the game actually did, not against what we intended --
+  // and re-resolve the live copy the same way, because the buffer can be recycled
+  // between the last drag and this read.
+  const final = bestLive();
+  if (!final) {
+    console.error('\ncannot locate a readable copy to verify against');
+    process.exit(6);
   }
-  console.log('\nresulting selection:');
+  liveBase = final.base;
+  entries = final.entries;
+  console.log('\nresulting selection (copy 0x' + liveBase + '):');
   entries.slice(0, 11).forEach(e => console.log('  ' + e.slot.padEnd(4) + ' ' + e.first + ' ' + e.last));
 
   let ok = true;

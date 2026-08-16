@@ -95,16 +95,32 @@ into one autonomous run. That is PLAN.md's Phase 4 exit criterion.
       - Offsets come from `cheat-table/fields.json`, never hand-copied.
       - Pointer chains are followed **generically** — depth varies (Contract is
         1 deref, names 2, Team Club 3), and hardcoding a depth crashes.
-- [ ] **Make `pick_lineup` slot-based.** It returns `{id, position}` in FM's
-      position vocabulary; `set_lineup` fills the active tactic's *slots*. Nothing
-      bridges them and a heuristic bridge would mis-assign players. Give the model
-      the actual slot list and have it fill those. Extract the scaffold to
-      `prompts.js` at the same time.
-- [ ] **`run_decision.js`** — read live → decide → apply → verify → log, with
-      `--dry-run` that decides without acting. Log the exact state shown to the
-      model so decisions can be replayed.
-- [ ] **Deterministic `--strategy baseline`** (best XI by CA). Tests the loop
-      without model variance, and is PLAN.md's own honest bar.
+- [x] **`pick_lineup` is slot-based**, filling the active tactic's slots instead of
+      naming free-form positions. `prompts.js` and `tactic.js` extracted;
+      `tactic.js` is the single source of truth for slot order (the serialised
+      order and the on-screen order differ — MCL/MCR are swapped between them,
+      which is how the two central midfielders get silently transposed).
+- [x] **`run_decision.js` — THE LOOP WORKS.** Read live → decide → apply → verify
+      → log. **Phase 4's exit criterion is met.** Verified with both strategies:
+      `baseline` (9 slots changed) and `qwen3:8b` (7 slots changed), each ending
+      `set_lineup: verified` and confirmed on FM's tactics screen.
+      Model loop end to end: **85.8s**.
+- [x] **Deterministic `--strategy baseline`** (best XI by CA, natural fits first).
+- [x] **Availability filtering.** A squad read returns all 23 registered players
+      but only 19 are pickable; without filtering the selector chose an injured
+      player and the write layer refused it. The live selection list is the
+      availability set.
+- [x] **Self-correction on invalid decisions.** Qwen put the same player in two
+      slots; validation refused to apply, fed the error back, and it corrected on
+      the second attempt. `attempts` is logged so "usable first try" stays
+      measurable.
+
+Remaining on the loop:
+- [ ] **Exercise the `tools` (agentic) strategy at least once** — still never run.
+- [ ] **Cost per decision** is now logged (tokens + wall clock); actually analyse
+      it before committing to the 2×2 grid.
+- [ ] The loop is tied to one tactic — `tactic.js` describes 4-3-3 DM Wide and the
+      formation is not read from the game.
 
 ## Next up
 
