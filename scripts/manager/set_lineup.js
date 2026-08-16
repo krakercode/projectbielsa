@@ -70,12 +70,42 @@ function ps(script, args) {
     { encoding: 'utf8' });
 }
 
+const LOCATE = path.join(REPO, 'scripts', 'manager', 'locate_lineup.js');
+
+// Every candidate copy of the selection list, most-copied first.
+function getVariants() {
+  const out = execFileSync(process.execPath, [LOCATE, '--json'],
+    { encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 });
+  const line = out.trim().split(/\r?\n/).filter(l => l.startsWith('{')).pop();
+  const j = JSON.parse(line);
+  if (!j.ok) throw new Error(j.error || 'locate failed');
+  return j.variants && j.variants.length
+    ? j.variants.map(v => v.base)
+    : [j.base];
+}
+
+const xiSig = entries => entries ? entries.slice(0, 11).map(e => e.uid).join(',') : null;
+
+// The roster is the sanity check on every read. These buffers are transient
+// render allocations: one was freed and REUSED to hold Leicester's squad between
+// a drag and the verification read, which parsed perfectly and reported a
+// completely wrong XI. Any parse containing a player who is not ours means the
+// buffer is no longer our selection list.
+const ROSTER = (() => {
+  const p = path.join(REPO, 'data', 'roster', 'aston-villa.json');
+  const j = JSON.parse(fs.readFileSync(p, 'utf8').replace(/^﻿/, ''));
+  return new Set(j.players.map(x => x.uid));
+})();
+
+// Returns null if the buffer is not (or is no longer) our selection list.
 function readSelection(base) {
   ps(READ_MEM, ['-ProcessName', 'fm', '-Address', base, '-Length', '2048', '-AsJson', TMP]);
   const raw = JSON.parse(fs.readFileSync(TMP, 'utf8').replace(/^﻿/, ''));
   const arr = Array.isArray(raw.bytes) ? raw.bytes : raw.bytes.value;
-  const buf = Buffer.from(arr);
-  return parseEntries(buf);
+  const entries = parseEntries(Buffer.from(arr));
+  if (entries.length < 11) return null;
+  if (entries.slice(0, 11).some(e => !ROSTER.has(e.uid))) return null;
+  return entries;
 }
 
 // Same record layout as scripts/manager/read_lineup.js:
@@ -135,17 +165,28 @@ function parseArgs(argv) {
 
 function main() {
   const args = parseArgs(process.argv.slice(2));
-  if (!args.base) {
-    console.error('usage: set_lineup.js --base <hexAddr> [--set DL=29009633,...] [--dry-run]');
-    process.exit(1);
+
+  // With no --base, locate every candidate copy. Which one is live is settled
+  // later, behaviourally, once we have made a change.
+  let bases;
+  if (args.base) {
+    bases = [args.base];
+  } else {
+    console.log('locating the selection list...');
+    bases = getVariants();
+    console.log('  ' + bases.length + ' candidate cop' + (bases.length === 1 ? 'y' : 'ies') +
+                ': ' + bases.map(b => '0x' + b).join(', '));
   }
 
-  let entries = readSelection(args.base);
-  if (entries.length < 11) {
-    console.error('only ' + entries.length + ' entries parsed at ' + args.base +
-                  ' -- wrong base, or the list moved. Re-derive it.');
+  // Drop any base that no longer reads as OUR selection list.
+  bases = bases.filter(b => readSelection(b) !== null);
+  if (!bases.length) {
+    console.error('no candidate base reads as an Aston Villa selection list ' +
+                  '-- the buffers were recycled; re-run to locate again');
     process.exit(2);
   }
+
+  let entries = readSelection(bases[0]);
 
   console.log('current selection:');
   entries.slice(0, 11).forEach(e => console.log('  ' + e.slot.padEnd(4) + ' ' + e.first + ' ' + e.last));
@@ -153,36 +194,93 @@ function main() {
   const wanted = Object.entries(args.set);
   if (!wanted.length) { console.log('\nno --set given, nothing to do'); return; }
 
-  // Work out the drags. Each is "put player U into slot S"; because a drag SWAPS
-  // the two rows, the displaced player lands where U came from, which is exactly
-  // what a human swap does too.
-  const plan = [];
-  for (const [slot, uid] of wanted) {
-    const from = slotOfUid(entries, uid);
-    if (!from) { console.error('player uid ' + uid + ' is not in the matchday squad'); process.exit(3); }
-    if (from === slot) continue;                       // already there
-    plan.push({ uid, from, to: slot });
+  // "Put player U into slot S". A drag SWAPS the two rows, so the displaced
+  // player lands where U came from -- the same thing a human swap does.
+  const planFrom = es => {
+    if (!es) return null;
+    const out = [];
+    for (const [slot, uid] of wanted) {
+      const from = slotOfUid(es, uid);
+      if (!from) return null;                    // not in the matchday squad
+      if (from === slot) continue;               // already there
+      out.push({ uid, from, to: slot });
+    }
+    return out;
+  };
+
+  // Only trust "nothing to do" if EVERY copy agrees. A stale copy claiming the
+  // target is already satisfied would otherwise make this a silent no-op -- which
+  // is exactly what happened the first time this ran.
+  const plans = bases.map(b => planFrom(readSelection(b))).filter(p => p !== null);
+  if (!plans.length) {
+    console.error('a requested player is not in the matchday squad, or every copy ' +
+                  'was recycled mid-read');
+    process.exit(3);
+  }
+  if (plans.every(p => p.length === 0)) {
+    console.log('\nall ' + bases.length + ' copies agree: already matches the requested XI');
+    return;
   }
 
-  if (!plan.length) { console.log('\nalready matches the requested XI'); return; }
-
-  console.log('\nplanned drags:');
+  const planIdx = plans.findIndex(p => p.length > 0);
+  const plan = plans[planIdx];
+  console.log('\nplanned drags (from copy 0x' + bases[planIdx] + '):');
   plan.forEach(p => console.log('  ' + p.from + ' -> ' + p.to + '  (uid ' + p.uid + ')'));
   if (args.dryRun) { console.log('\n--dry-run, nothing applied'); return; }
 
   ps(FOCUS, ['-ProcessId', String(fmPid())]);
-  for (const p of plan) {
-    // re-read between drags: an earlier swap may have moved this player's row
-    entries = readSelection(args.base);
-    const from = slotOfUid(entries, p.uid);
-    if (!from) { console.error('lost track of uid ' + p.uid); process.exit(4); }
-    if (from === p.to) continue;
-    console.log('  dragging ' + from + ' -> ' + p.to);
-    drag(from, p.to);
+
+  // LIVENESS. FM keeps many copies of the selection list and stale generations
+  // survive -- measured 23 stale copies against 21 live, so no count-based rule
+  // is safe. The only reliable test is behavioural: the live copy is the one that
+  // CHANGES when the lineup changes. We are about to change it anyway, so the
+  // first drag doubles as the calibration.
+  let liveBase = args.base;
+  const before = liveBase ? null : new Map(bases.map(b => [b, xiSig(readSelection(b))]));
+
+  // First drag: taken from a possibly-stale copy, purely to make SOMETHING change
+  // so the live copy reveals itself.
+  const first = plan[0];
+  console.log('  dragging ' + first.from + ' -> ' + first.to);
+  drag(first.from, first.to);
+
+  if (!liveBase) {
+    const changed = bases.filter(b => xiSig(readSelection(b)) !== before.get(b));
+    if (!changed.length) {
+      console.error('\nno copy changed after a drag -- cannot identify the live one, ' +
+                    'refusing to report a possibly stale result');
+      process.exit(6);
+    }
+    liveBase = changed[0];
+    console.log('  live copy identified: 0x' + liveBase +
+                ' (' + changed.length + ' of ' + bases.length + ' copies updated)');
+  }
+
+  // From here work only against the live copy, re-planning each time. This also
+  // repairs the first drag if it was planned off a stale copy and did the wrong
+  // thing -- a drag is a swap, so re-dragging undoes it.
+  for (let i = 0; i < 24; i++) {
+    const p = planFrom(readSelection(liveBase));
+    if (!p || !p.length) break;
+    const step = p[0];
+    console.log('  dragging ' + step.from + ' -> ' + step.to + '  (live)');
+    drag(step.from, step.to);
   }
 
   // Verify against what the game actually did, not against what we intended.
-  entries = readSelection(args.base);
+  // If the live buffer was recycled since the last drag, locate again rather than
+  // trusting whatever now sits at that address.
+  entries = readSelection(liveBase);
+  if (!entries) {
+    console.log('  live copy was recycled; locating again for verification');
+    const fresh = getVariants().filter(b => readSelection(b) !== null);
+    if (!fresh.length) {
+      console.error('\ncannot re-locate a valid copy to verify against');
+      process.exit(6);
+    }
+    liveBase = fresh[0];
+    entries = readSelection(liveBase);
+  }
   console.log('\nresulting selection:');
   entries.slice(0, 11).forEach(e => console.log('  ' + e.slot.padEnd(4) + ' ' + e.first + ' ' + e.last));
 

@@ -256,6 +256,47 @@ stopped), and `dump_many.ps1` returned *empty* buffers for any window touching a
 unmapped page, which made the locator look like it had found nothing. Both readers
 are now page-tolerant and zero-fill what they cannot read.
 
+## Addendum 4 — liveness resolved, and a near-miss worth recording
+
+**`set_lineup.js` now needs no address at all.** It locates candidate copies, and
+resolves which is live *behaviourally*: snapshot every candidate, make the first
+drag, and whichever copy changed is the live one. It then re-plans against that
+copy to a fixpoint, which also repairs the first drag if it was planned off a
+stale copy. Verified end to end with no `--base`.
+
+Two bugs surfaced in testing, and the second one matters a lot:
+
+1. **Silent no-op.** Planning off `bases[0]` — which happened to be stale — made
+   it conclude "already matches the requested XI" and do nothing. Fixed: a no-op
+   is only accepted if **every** copy agrees.
+
+2. **A recycled buffer reported a completely wrong XI.** A verification read came
+   back as *Wes Morgan, Nampalys Mendy…* — **Leicester's** squad. The buffer had
+   been freed and reused between the drag and the read, seconds apart, and it
+   parsed perfectly. The drags themselves had worked correctly; only the read was
+   wrong, and the tool did fail loudly rather than claim success.
+
+   Fixed by validating every parse against the roster: if any entry is not one of
+   our players, the buffer is no longer our selection list. This is the important
+   lesson of the day — these are **transient render buffers**, not stable
+   allocations, so nothing may be cached and everything must be re-validated.
+   Recorded prominently in `docs/LIVE-STATE.md`.
+
+Final verified run, fully automatic:
+
+```
+locating the selection list...
+  3 candidate copies: 0xA991DFBF, 0xC46B64DF, 0xC47B22EF
+  dragging S5 -> DL
+  live copy identified: 0xC47B22EF (1 of 2 copies updated)
+  dragging S4 -> STC  (live)
+  OK   DL  expected uid 28084863, got 28084863 (Targett)
+  OK   STC expected uid 28107730, got 28107730 (Davis)
+set_lineup: verified
+```
+
+Confirmed against FM's tactics screen afterwards.
+
 ---
 
 ## Next session should probably

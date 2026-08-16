@@ -61,15 +61,15 @@ Read half done 2026-08-16, write half untouched. See
       restarts) with `scripts/win/scan_mem.ps1` (CE-free, 2.5 GB in ~2.4 s).
       Confirmed the list really does move: an address found hours earlier no
       longer parsed, with no restart.
-- [ ] **Resolve which copy is LIVE — this is the real remaining gap.** FM keeps
-      many copies and stale generations survive and can *outnumber* the live one
-      (measured 23 stale vs 21 live), so no count-based rule is safe. The GK-slot
-      plausibility filter works and is in; majority does not. Liveness is
-      inherently **behavioural**: the live copy is the one that changes when the
-      lineup changes. `set_lineup.js` already acts, so it should apply its change,
-      re-read every candidate, and keep whichever base reflects it — then cache
-      that base for the session. Until then `locate_lineup.js` warns loudly and
-      its pick is **not** guaranteed current.
+- [x] **Resolve which copy is LIVE — done, behaviourally.** `set_lineup.js` uses
+      its own first drag as the calibration: snapshot every candidate, drag, and
+      whichever copy changed is live; then re-plan against that one to a fixpoint.
+      Verified working with no `--base` supplied at all.
+- [x] **Validate every read against the roster.** Necessary, not paranoia: a base
+      was freed and reused to hold *Leicester's* squad between a drag and the
+      verification read a second later, parsed cleanly, and reported a completely
+      wrong XI. Any parsed entry that is not one of our players now means the
+      buffer is no longer ours.
 
 **Note:** this save now has a tactic (Fluid Counter-Attack / Cautious 4-3-3 DM
 Wide) and a Quick Pick XI, created 2026-08-16 because Phase 2 is impossible

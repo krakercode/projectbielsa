@@ -16,10 +16,36 @@ Read this before using ANY hex address from
 | Kind | Example | Survives FM restart? |
 | --- | --- | --- |
 | `fm.exe+OFFSET` code address | `1455A87E3` | **Yes** — module-relative, stable |
+| **Game data** (UIDs, names, position ratings) | `data/roster/*.json` | **Yes** — it is save data, not process data |
 | Heap object address | `975AA370` (Aston Villa) | **No** — fresh allocation every launch |
 | CE GUI scan results | the 5,081 found-list | **No** — dies with Cheat Engine too |
 
-Code addresses are the durable asset. Every data address below is a snapshot.
+Code addresses and game data are the durable assets. Every data address below is
+a snapshot.
+
+### Worse than "perishable": some buffers are recycled within seconds
+
+Learned the hard way 2026-08-16. The team-selection list is a transient render
+buffer, not a stable allocation:
+
+- A selection-list base found earlier the same day no longer parsed at all, with
+  **no restart** in between.
+- One base was freed and **reused to hold Leicester's squad** between a drag and
+  the verification read a second later. It parsed perfectly and reported a
+  completely wrong XI.
+
+So **never cache a selection-list address**, and **always validate what you read**
+against the roster — if a parsed entry is not one of our players, the buffer is no
+longer ours. `scripts/manager/set_lineup.js` does both; copy that pattern.
+
+Use `scripts/manager/locate_lineup.js` to find it fresh. It anchors on UIDs and
+names from `data/roster/`, so it needs no prior address.
+
+**And note liveness is not readable.** FM keeps many copies and stale generations
+survive — measured 23 stale copies against 21 live, so majority picks the *wrong*
+answer. The live copy can only be identified behaviourally: it is the one that
+changes when the lineup changes. `set_lineup.js` resolves this by using its own
+first drag as the calibration.
 
 ---
 
@@ -104,12 +130,31 @@ which is exactly why those are the durable asset.
 
 ---
 
+## Phase 2 tooling (all CE-free, all read-only on memory)
+
+| Script | Purpose |
+| --- | --- |
+| `scripts/manager/set_lineup.js` | Apply an XI by driving the tactics UI, then verify from memory. Needs no address. |
+| `scripts/manager/locate_lineup.js` | Find the selection list from cold, anchored on the roster |
+| `scripts/manager/read_lineup.js` | Parse a dumped region into an XI |
+| `scripts/win/scan_mem.ps1` | Pattern scan over writable memory — 2.5 GB in ~2.4 s |
+| `scripts/win/read_mem.ps1`, `dump_many.ps1` | Read memory; page-tolerant, zero-fill unmapped pages |
+| `scripts/win/click.ps1` | Synthetic mouse via `SendInput`; `-Drag` for list-row drags |
+| `scripts/win/focus.ps1` | Reliable window focus |
+
+Two UI facts these depend on: FM **accepts synthetic input**, and the swap
+dropdown's candidate order is **not stable** — so lineup changes are made by
+dragging between list rows, whose positions are fixed.
+
 ## Saves
 
-- Live save: `Documents/Sports Interactive/Football Manager 2021/games/Claude Anthropic - Aston Villa.fm`, saved 2026-08-15 23:29 (4 Oct 2020).
-- Backups: `D:\projectbielsa-save-backup\2026-08-15-2323\` (pre-save) and
-  `D:\projectbielsa-save-backup\2026-08-16-0035-eod\` (current, includes FM's own
-  `last save overwrite backup.fm`).
+- Live save: `Documents/Sports Interactive/Football Manager 2021/games/Claude Anthropic - Aston Villa.fm`, saved 2026-08-16 12:15 (4 Oct 2020).
+- Backups: `D:\projectbielsa-save-backup\` — `2026-08-15-2323\`, `2026-08-16-0035-eod\`,
+  and `2026-08-16-1215-phase2\` (most recent).
+- The save now has a tactic: **Fluid Counter-Attack / Cautious 4-3-3 DM Wide**,
+  created 2026-08-16 because Phase 2 is impossible without one (FM had been
+  auto-picking for the four matches played). Current XI ends with Targett at DL
+  and Davis at STC, from `set_lineup.js` runs.
 
 ## Not mine, still uncommitted
 
