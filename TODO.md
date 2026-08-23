@@ -4,7 +4,7 @@ Sessions start cold, so this is the "what's next" list. `PLAN.md` is strategy,
 `docs/session-log/` is history, this is the queue. **Keep it current** — move
 items to Done with the commit that closed them, and delete stale entries.
 
-Last updated: 2026-08-16 (table render loop found; Phase 2 is next)
+Last updated: 2026-08-23 (CM 01/02 evaluated as a pilot harness; spike queued, unrun)
 
 > **Before using any hex address from a session log, read `docs/LIVE-STATE.md`.**
 > Code addresses (`fm.exe+...`) survive restarts; every heap address from the
@@ -12,6 +12,36 @@ Last updated: 2026-08-16 (table render loop found; Phase 2 is next)
 > That file also lists how to re-derive each one from scratch.
 
 ---
+
+## Candidate — CM 01/02 trial run (queued, NOT started, NOT committed to)
+
+Evaluating Championship Manager 01/02 as a **fast pilot harness** for building the
+loop and measuring cost per season. **FM21 remains the experimental target** — the
+research claim depends on the game being complex, and CM 01/02 is much shallower.
+Argument and case-against: `docs/alternative-targets.md`. Trial spec: `cm0102/docs/spike.md`.
+
+Needs desktop access (a CM 01/02 3.9.68 install). Time-boxed to one session; if A
+and B both fail, delete `cm0102/` and the trial is over. **A is the gate — do it
+first and stop early if it fails.**
+
+- [ ] **A. Advance the clock by script** and independently confirm the date moved.
+      This is the blocker FM21 never solved. Also record what *blocks* Continue
+      (matches, decisions, news modals) — that is the real control-flow problem.
+- [ ] **B. Read a squad from cold**, identical output across a full restart, no
+      scanning. Save file first, static memory address as fallback. Verify
+      field-by-field against the game's UI.
+- [ ] **C. Set a lineup by script** and verify it, UI-driven by construction.
+- [ ] **D. Measure** match/season wall clock, cycle time vs FM21's 86 s, and
+      whether Wine + Xvfb runs N instances. Then do PLAN.md's cost-per-season
+      arithmetic.
+- [ ] Record everything in `cm0102/docs/findings.md`; make the call in
+      `docs/alternative-targets.md` § 6.
+
+**Not spike work, but worth doing regardless:** extract a target-agnostic
+state/action interface from `scripts/manager/`. `run_decision.js` hardcodes
+`powershell.exe`, `read_squad.js`, `set_lineup.js` and a sidebar click coordinate.
+Do this *after* the spike — doing it early breaks `cm0102/`'s containment rule for a
+target that might not survive the week.
 
 ## Manager stack (Qwen) — working, read-only
 

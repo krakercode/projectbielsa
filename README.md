@@ -44,6 +44,16 @@ cannot yet play a season. Human-mode masking remains an explicit placeholder, no
 Phase 5. See [docs/manager-setup.md](docs/manager-setup.md) and
 [docs/LIVE-STATE.md](docs/LIVE-STATE.md).
 
+**The target itself is under review — but has not changed.** Two things are stuck:
+the agent cannot advance the game, and throughput (~86 s per decision, matches in
+real time) makes PLAN.md's ~120-run experimental grid unaffordable. An older,
+simpler game (Championship Manager 01/02) is being evaluated as a *pilot harness*
+for building the loop cheaply — not as a replacement, since the research claim
+depends on the game being complex. The argument, including the case against, is in
+[docs/alternative-targets.md](docs/alternative-targets.md); the time-boxed trial is
+specified in [cm0102/docs/spike.md](cm0102/docs/spike.md) and **has not been run**.
+FM21 remains the target of record and no FM21 code has changed.
+
 **Phase 4 design work started early** — [docs/control-interface.md](docs/control-interface.md) works out how models actually drive the manager: an agentic tool-use loop (read tools + write tools per decision event) rather than one giant JSON-in/JSON-out call, where cheat/human mode plugs in, how manager "personality" (risk tolerance, transfer aggressiveness, etc.) gets configured separately from game state, and the model-agnostic adapter shape. Design only — no code yet, and it depends on Phase 1/2 read/write access existing first.
 
 Two separate logging conventions exist — don't confuse them:
@@ -64,6 +74,7 @@ Two separate logging conventions exist — don't confuse them:
 - `scripts/win/` — PowerShell primitives: memory scan/read, synthetic input, window focus
 - `data/roster/` — per-club UIDs, Row IDs, names and position ratings. **Game data, stable across restarts** — this is what every locator anchors on
 - `scripts/python/` — an unused stub from the original plan; the controller is Node (see `docs/manager-setup.md` for why)
+- `cm0102/` — **quarantined** trial of Championship Manager 01/02 as a fast pilot harness. Documentation only, nothing run. Imports nothing from `scripts/`, `cheat-table/` or `data/`, and deleting the directory abandons the trial cleanly — see `cm0102/README.md`
 - `data/` — local JSON state snapshots, decision logs, and manager session reports (gitignored — saves and dumps are local only)
 
 ## Requirements

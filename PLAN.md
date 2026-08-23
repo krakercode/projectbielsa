@@ -157,6 +157,7 @@ Cheap insurance, to do *early*: have the agent log explicit predictions about hi
 - In-match pointers are genuinely unexplored territory; Phase 3 could take significantly longer than the others.
 - Match-engine actions may resist memory writes even once state is readable.
 - This sits in FM's single-player modding/cheat-tool space (same category as FMRTE) — not something SI officially supports, though it's a well-established hobbyist practice for single-player saves.
+- **Throughput may make this design unaffordable.** Matches run in real time and a decision costs ~86 s, against a grid sized at roughly 120 runs above. An older, simpler game (Championship Manager 01/02) is under evaluation as a *pilot harness* to build the loop and measure cost per season cheaply — **not** as a replacement target, since the research claim depends on the game being complex. See [docs/alternative-targets.md](docs/alternative-targets.md) for the argument and [cm0102/docs/spike.md](cm0102/docs/spike.md) for the (unrun) trial. FM21 remains the target of record; nothing in the phases above changes.
 
 ## Suggested Build Order
 Phase 0 → Phase 1 → Phase 2 → Phase 4 (between-match loop working end to end, cheat mode only) → Phase 5 (add human mode) → Phase 3 → Phase 6.
