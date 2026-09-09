@@ -38,18 +38,22 @@ The first answer selected by Qwen was:
 > We need to continue to work hard and make sure we play to our full potential
 
 No screenshot text, OCR, or pre-known response strings were required by the reader.
-## What remains / cautions
+## Continuation — conference completed and exited
 
-- The current question text is not yet generically decoded. Rendered fragments exist in memory, but the clean ownership path from the active `PRESS_CONFERENCE_QUESTION` to those strings is still unresolved.
-- Raw RESPONSE-vtable presence is not enough to identify the current blocker because FM retains stale generations.
-- All live heap addresses in this log are intentionally omitted from the durable findings. Re-derive live instances from RTTI/vtable scans after restart.
-- `read_press_choices.js` is press-conference-specific today; do not present it as a generic event dispatcher yet.
-- The running save is disposable investigation state and has not been promoted to a new disk-save baseline.
+- `read_press_state.js` was added around the live `PRESS_CONFERENCE_EDIT_SESSION`. It resolves the dynamic question vector, `+0xE0` progress counter and current question pointer while one is active.
+- FM inserted a follow-up question during the conference, growing the vector. This proved the question list is dynamic rather than a fixed agenda.
+- Qwen continued selecting from memory-read response choices. The write side used only memory-derived button rectangles plus SendInput.
+- At terminal state `+0xE0` reached **10** while the question vector contained **9** entries. Therefore the field is an answered-response/progress counter, not an always-valid vector index.
+- More importantly, stale response widgets remained after the final question with plausible geometry/text. A controller that only looked for response widgets could click an old answer. The runner now has a hard semantic gate: no current question means response widgets are never read or actioned.
+- `read_ui_buttons.js` was added as a generic memory reader for primary BUTTON / ICON_BUTTON objects. It reads the same text-handle and geometry seams used by the press-choice reader.
+- At the end it located **Continue To Summary** as a BUTTON. On the summary screen it located **Leave Press Conference** as an ICON_BUTTON from memory, and the click used that object's centre.
+- Exit was verified: the live primary `INTERACTION_SUMMARY_PRESS_CONFERENCE_PANEL` disappeared and a post-exit button scan found no press-conference/summary terminal controls.
+- A one-time screenshot was used only after reaching the summary to confirm the newly decoded semantics. It was not an observation source for the loop.
 
-## Next session should probably
+## Safety / validity status
 
-1. Use the `PRESS_CONFERENCE_EDIT_SESSION` progress differential to identify the active question object without screen input.
-2. Resolve the active question object's formatted text from memory, including multi-fragment questions.
-3. Emit a machine-readable press event `{question, choices, metadata}` and route it to the manager provider.
-4. Apply the selected response using the already decoded memory-derived button geometry and verify the edit-session progress counter changes.
-5. Repeat across the rest of the conference, then fold the press handler into generic required-response dispatch and continue toward the Leicester match / Phase 3 live-match objects.
+The press conference is **complete and exited**, but the event handler is not yet publishable. The formatted current-question text is still not generically decoded. The reverse-engineering run therefore made later choices from answer text without full question text. That is useful for validating the memory/action plumbing, but must not be presented as a valid evaluation condition.
+
+`run_press_conference.js` now refuses that behaviour by default. It requires an explicit `--allow-choice-only` flag to reproduce the RE experiment, and it verifies semantic progress after each answer. This makes accidental blind press decisions fail closed.
+
+The remaining press-specific task is to map the authoritative current `PRESS_CONFERENCE_QUESTION` to its formatted question text. After that, emit a complete event payload, fold it into generic required-response dispatch, and continue with the Leicester match / Phase 3 live-match state.

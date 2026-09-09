@@ -191,22 +191,40 @@ so current interaction objects must still be isolated by lifetime/differential
 behaviour. In the Leicester pre-match press conference this exposed the current
 `INTERACTION_GROUPED_RESPONSE_SELECTOR_PANEL` / response-widget generation.
 
-The first fully decoded press-response path is now:
+The decoded press-response path is:
 `INTERACTION_RESPONSE_WIDGET` primary vtable → widget `+0x1A0` BUTTON →
 BUTTON `+0x1B0` text handle → UTF-8 text at `handle+4`. Widget floats at
 `+0x5C/+0x60/+0x64/+0x68` are x/y/width/height. `read_press_choices.js`
 validates the primary widget and BUTTON vtables, reads all choices, sorts by x,
-and returns text plus safe centre-click coordinates. It reproduced five live
-choices on two consecutive questions. Qwen selected the first answer on question
-one and SendInput applied the action using only those memory-derived coordinates.
+and returns text plus safe centre-click coordinates.
 
-`PRESS_CONFERENCE_EDIT_SESSION` is also a real semantic owner: the live object
-contains an 8-element `PRESS_CONFERENCE_QUESTION` vector and a 13-element
-`PRESS_CONFERENCE_JOURNALIST` vector matching the meeting. After answering the
-first question, only three bytes changed in its first 2 KiB; notably `+0xE0`
-changed **0 → 1**, a strong current-progress/answered-count lead. The remaining
-press-conference blocker is to identify the active question and resolve its text
-from that object graph generically. Screenshots remain validation-only.
+`PRESS_CONFERENCE_EDIT_SESSION` owns the semantic conference state. Its question
+vector is dynamic: FM inserted a follow-up during the live run. While a question
+is active, the object at `questions[+0xE0 progress counter]` matched the current
+`PRESS_CONFERENCE_QUESTION`. Do **not** treat that as a lifetime invariant: after
+the conference finished the counter was 10 while the vector contained 9 questions.
+The edit-session object also remained allocated after exit. `read_press_state.js`
+therefore exposes a current question only when the counter is inside the vector.
+
+A critical safety rule follows from this: stale `INTERACTION_RESPONSE_WIDGET`
+objects can remain plausible after the last question. `run_press_conference.js`
+never reads or clicks response choices unless `read_press_state.js` reports a
+non-null current question. This guard prevented the controller from replaying stale
+answers at terminal state.
+
+Terminal press controls use the same memory-first write pattern. A generic
+`read_ui_buttons.js` reader validates primary BUTTON / ICON_BUTTON vtables and
+reads their `+0x1B0` text handles plus geometry. It located **Continue To Summary**
+as a BUTTON and **Leave Press Conference** as an ICON_BUTTON. The latter was
+clicked from its memory-derived rectangle; exit was verified by disappearance of
+the live summary panel/button.
+
+The remaining semantic gap is the formatted current-question text. The question
+pointer, ID, journalist, media source, dynamic vector membership and answer choices
+are all readable, but the formatted question is still assembled through an
+unresolved string/template path. For safety, `run_press_conference.js` refuses
+choice-only model decisions by default; `--allow-choice-only` exists only to
+reproduce the disposable reverse-engineering run. Screenshots remain validation-only.
 
 ---
 
@@ -238,6 +256,9 @@ data and identical across restarts.
 | `scripts/manager/advance_until_progress.js` | Click only top-right navigation until authoritative GAME time moves; stops safely on MUST RESPOND |
 | `scripts/manager/find_responses.js` | Build RESPONSE vtable set from RTTI and scan live writable memory for instances |
 | `scripts/manager/read_press_choices.js` | Read live press-conference choice text + button geometry from memory; no screenshot input |
+| `scripts/manager/read_press_state.js` | Resolve live edit-session progress, dynamic question vector and current question |
+| `scripts/manager/run_press_conference.js` | Experimental guarded press controller; refuses choice-only decisions unless explicitly enabled for RE |
+| `scripts/manager/read_ui_buttons.js` | Read visible BUTTON / ICON_BUTTON labels + geometry from memory for terminal UI actions |
 | `scripts/manager/read_squad.js` | Live squad read, ~6 s from cold, no Cheat Engine |
 | `scripts/manager/pick_lineup.js` | The decision event; `--strategy baseline` is model-free |
 | `scripts/manager/set_lineup.js` | Apply an XI by driving the tactics UI, then verify |
@@ -281,7 +302,7 @@ Needs FM running with the save loaded, and `ollama serve` for the model paths
 
 ## Saves
 
-- Live save on disk: `Documents/Sports Interactive/Football Manager 2021/games/Claude Anthropic - Aston Villa.fm`, saved 2026-08-16 16:29 at 4 Oct 2020. The current **running process** was advanced during the 2026-09-09 investigation to at least 16 Oct 2020 12:15 and is inside the Leicester pre-match press conference; that live progress has not been claimed as a new disk-save baseline. During this disposable live run, Qwen negotiated and then accepted a Watford offer for Aaron Ramsey, and FM completed the transfer.
+- Live save on disk: `Documents/Sports Interactive/Football Manager 2021/games/Claude Anthropic - Aston Villa.fm`, saved 2026-08-16 16:29 at 4 Oct 2020. The current **running process** was advanced during the 2026-09-09 investigation to at least 16 Oct 2020 12:15 and has completed/exited the Leicester pre-match press conference; that live progress has not been claimed as a new disk-save baseline. During this disposable live run, Qwen negotiated and then accepted a Watford offer for Aaron Ramsey, and FM completed the transfer.
 - Backups: `D:\projectbielsa-save-backup\` — `2026-08-15-2323\`,
   `2026-08-16-0035-eod\`, `2026-08-16-1215-phase2\`, and
   `2026-08-16-1629-loop-working\` (most recent).

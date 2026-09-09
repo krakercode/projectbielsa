@@ -136,17 +136,22 @@ Remaining on the loop:
       `scripts/win/read_game_time.ps1`; it validates the GAME vtable before
       returning the fingerprint.
 - [ ] **Required-response/event dispatch — CURRENT FRONTIER.**
-      `find_responses.js` now turns the static RTTI index into a live writable-
-      memory response scan. During the Leicester pre-match press conference,
-      differential RTTI scanning isolated the current interaction generation.
-      `read_press_choices.js` then resolved all five live response choices from
-      memory: response-widget → BUTTON → text handle, plus the BUTTON geometry.
-      Qwen chose the first answer and the action was applied with SendInput using
-      those memory-derived coordinates; the next question's five choices were
-      immediately read the same way. `PRESS_CONFERENCE_EDIT_SESSION` also owns
-      an 8-question vector and 13-journalist vector, and +0xE0 changed 0→1 after
-      the first answer. **Next:** identify the active question and read its text
-      generically from memory, then wrap question+choices+action in the dispatcher.
+      The Leicester pre-match press conference has now been completed and exited
+      through the memory-first path. `read_press_state.js` resolves the live
+      `PRESS_CONFERENCE_EDIT_SESSION`, progress counter, dynamic question vector
+      and current question while one is active. `read_press_choices.js` resolves
+      response text + geometry; `read_ui_buttons.js` resolved terminal
+      **Continue To Summary** (BUTTON) and **Leave Press Conference** (ICON_BUTTON)
+      controls from memory, and the leave action was verified by disappearance of
+      the summary panel/button. `run_press_conference.js` now has a hard semantic
+      gate: it never reads/clicks response widgets unless `current_question` is
+      non-null, because stale widgets can survive the final answer. The edit session
+      itself also survives exit (observed progress 10 with a 9-question vector), so
+      `+0xE0` is a progress/answered-response counter, not a lifetime-safe vector
+      index. **Remaining blocker for a publishable press handler:** generic current-
+      question text. The runner refuses choice-only decisions by default; the
+      `--allow-choice-only` path is RE-only. Next: decode question text, then fold
+      this event into the generic dispatcher and continue into Leicester/Phase 3.
       See `docs/session-log/2026-09-09-press-conference-memory-path.md`.
 - [x] **League table — render loop FOUND, league position readable.**
       `fm.exe+1455A87E3`, `RBX` = club, visited in exact table order 1st→20th.
