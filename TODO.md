@@ -4,7 +4,7 @@ Sessions start cold, so this is the "what's next" list. `PLAN.md` is strategy,
 `docs/session-log/` is history, this is the queue. **Keep it current** — move
 items to Done with the commit that closed them, and delete stale entries.
 
-Last updated: 2026-09-09 (game-date RTTI investigation added; authoritative date still open)
+Last updated: 2026-09-09 (authoritative GAME clock verified; required-response RTTI dispatch is current frontier)
 
 > **Before using any hex address from a session log, read `docs/LIVE-STATE.md`.**
 > Code addresses (`fm.exe+...`) survive restarts; every heap address from the
@@ -136,14 +136,17 @@ Remaining on the loop:
       `scripts/win/read_game_time.ps1`; it validates the GAME vtable before
       returning the fingerprint.
 - [ ] **Required-response/event dispatch — CURRENT FRONTIER.**
-      `scripts/manager/advance_until_progress.js` now drives FM's fixed top-right
-      navigation until the GAME fingerprint changes, and safely stops when time
-      cannot move. Its first live blocked run correctly stopped on a mandatory
-      Watford transfer offer for Aaron Ramsey rather than guessing a response.
-      Next: classify mandatory events and route football decisions (starting with
-      transfer offers) through the manager model, while deterministic admin-only
-      prompts can have explicit policies. See
-      `docs/session-log/2026-09-09-game-advance-signal.md`.
+      The first real transfer-response chain was exercised live: Qwen negotiated
+      Watford's Aaron Ramsey offer to £200K upfront, then accepted Watford's
+      improved £250K non-negotiable counter; FM later completed the transfer.
+      This proved the manager can make sequential football decisions while the
+      GAME clock is the independent progress signal. `scripts/win/rtti_index.js`
+      now parses `fm.exe` statically and found **352 RESPONSE-family vtables**,
+      including transfer, squad-selection, registration and press-conference
+      response classes. Next: scan those vtables in live writable memory when
+      GAME time is blocked, identify the active response object by differential
+      behaviour, and dispatch it without screen-reading as the state source. See
+      `docs/session-log/2026-09-09-required-response-rtti.md`.
 - [x] **League table — render loop FOUND, league position readable.**
       `fm.exe+1455A87E3`, `RBX` = club, visited in exact table order 1st→20th.
       See `docs/phase1-notes.md` and
