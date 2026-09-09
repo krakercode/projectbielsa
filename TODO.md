@@ -127,18 +127,23 @@ Remaining on the loop:
 
 ## Next up
 
-- [ ] **Reliable game-advance signal — CURRENT FRONTIER.** Memory-first work on
-      2026-09-09 found a likely packed date representation (`0x07E45916` for
-      4 Oct 2020), but there are 1,934 live copies, so the value alone is not an
-      authority signal. `scripts/win/rtti.ps1` now resolves live FM vtables to
-      MSVC RTTI class names; this reduced the date-copy contexts to 49 nearby
-      class/vtable families. **Do not use the apparent 21/15 fields near
-      `fm.exe+0x690BE28`: RTTI proves those 0x110-byte objects are
-      `GAME_TEAM_COMP_STATS`, not clocks.** Live `CURRENT_GAME_DATE_WIDGET`
-      instances exist, but the date is not inline in the widget. Next: classify
-      the 49 families, follow the widget's source, then advance FM and verify the
-      chosen value changes exactly as expected. See
-      `docs/session-log/2026-09-09-game-date-rtti.md`.
+- [x] **Reliable game-advance signal.** Verified live on 2026-09-09. A restart-safe
+      global at `fm.exe+0x7002EC8` points to a real `GAME` object (RTTI), and
+      the 32-bit values at `GAME+0x90/+0x94/+0x98` form a stable progress
+      fingerprint. The encoding is not decoded or monotonic, so compare for
+      equality only. It changed with every observed visible time movement:
+      4 Oct 21:15 → 5 Oct 08:00 → 09:00 → 15:15. Use
+      `scripts/win/read_game_time.ps1`; it validates the GAME vtable before
+      returning the fingerprint.
+- [ ] **Required-response/event dispatch — CURRENT FRONTIER.**
+      `scripts/manager/advance_until_progress.js` now drives FM's fixed top-right
+      navigation until the GAME fingerprint changes, and safely stops when time
+      cannot move. Its first live blocked run correctly stopped on a mandatory
+      Watford transfer offer for Aaron Ramsey rather than guessing a response.
+      Next: classify mandatory events and route football decisions (starting with
+      transfer offers) through the manager model, while deterministic admin-only
+      prompts can have explicit policies. See
+      `docs/session-log/2026-09-09-game-advance-signal.md`.
 - [x] **League table — render loop FOUND, league position readable.**
       `fm.exe+1455A87E3`, `RBX` = club, visited in exact table order 1st→20th.
       See `docs/phase1-notes.md` and

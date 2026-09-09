@@ -153,21 +153,44 @@ which is exactly why those are the durable asset.
 
 ---
 
+## Durable: authoritative game-time progress signal
+
+A restart-safe global in this FM21 build is **`fm.exe+0x7002EC8`**. It points
+to a live object whose vtable resolves through RTTI to **`GAME`**. The current
+observed vtable is `fm.exe+0x6531AA0`; the reader accepts the three GAME
+vtables identified in this build and fails closed on anything else.
+
+The values at `GAME+0x90`, `+0x94`, and `+0x98` move with FM's visible
+clock and are used together as an opaque fingerprint. **Do not decode or order
+them numerically.** The observed encoding is non-monotonic. The only verified
+operation is equality/change detection. Live observations:
+
+- 4 Oct 2020 21:15: `07E4591D:07E45916:07E48516`
+- 5 Oct 2020 08:00: `07E47D1D:07E47D16:07E48516`
+- 5 Oct 2020 09:00: `07E4131E:07E41317:07E48516`
+- 5 Oct 2020 15:15: `07E41B1E:07E41B17:07E45D17`
+
+`scripts/win/read_game_time.ps1 -AsJson` follows the static global, validates
+the GAME vtable, and returns this fingerprint without memory writes.
+`scripts/manager/advance_until_progress.js` clicks only FM's fixed top-right
+navigation control until that fingerprint changes. A MUST RESPOND screen is a
+safe stop: the script does not click response buttons, and returns no-progress.
+
+---
+
 ## Perishable: 2026-09-09 game-date investigation snapshot
 
 The live `CURRENT_GAME_DATE_WIDGET` object was observed around `0x8F6EC460` in
 this process. **That is a heap address and must not be reused after a restart.**
 The durable part is the widget's module-relative vtable anchors above.
 
-A 4 Oct 2020 scan found 1,934 copies of the candidate packed date value
-`0x07E45916`. The high 16 bits are 2020 and the low part is consistent with the
-calendar position of 4 October in a leap year, but this representation is still
-only a **candidate encoding**, not a proven current-game-date owner.
+A 4 Oct 2020 scan found 1,934 copies of the candidate value `0x07E45916`.
+Those contexts were reduced to 49 nearby FM vtable families and then RTTI-
+classified. Most were historical/results/UI objects; the decisive family was
+`GAME`. That led to the durable global and verified progress fingerprint above.
 
-The 1,934 contexts were reduced to 49 distinct nearby FM vtable families. Those
-families still need RTTI classification. Do not solve this by picking whichever
-copy sits closest to a plausible-looking integer; that exact mistake produced the
-`GAME_TEAM_COMP_STATS` false lead.
+Keep this section as historical warning: value scans alone are not authority.
+The first attractive 21/15 match was `GAME_TEAM_COMP_STATS`, not a clock.
 
 ---
 
@@ -180,6 +203,7 @@ data and identical across restarts.
 | Script | Purpose |
 | --- | --- |
 | `scripts/manager/run_decision.js` | **The loop**: read live → decide → apply → verify → log |
+| `scripts/manager/advance_until_progress.js` | Click only top-right navigation until authoritative GAME time moves; stops safely on MUST RESPOND |
 | `scripts/manager/read_squad.js` | Live squad read, ~6 s from cold, no Cheat Engine |
 | `scripts/manager/pick_lineup.js` | The decision event; `--strategy baseline` is model-free |
 | `scripts/manager/set_lineup.js` | Apply an XI by driving the tactics UI, then verify |
@@ -188,6 +212,7 @@ data and identical across restarts.
 | `scripts/manager/prompts.js` | Prompt scaffolds per decision event |
 | `scripts/win/scan_mem.ps1` | Multi-pattern scan over writable memory — 2.4 GB in ~5.5 s |
 | `scripts/win/rtti.ps1` | Resolve an FM vtable pointer to its MSVC RTTI class name; read-only. |
+| `scripts/win/read_game_time.ps1` | Follow the static GAME root and return the validated live progress fingerprint |
 | `scripts/win/read_mem.ps1`, `dump_many.ps1` | Read memory; page-tolerant, zero-fill unmapped |
 | `scripts/win/click.ps1` | Synthetic mouse via `SendInput`; `-Drag` for list-row drags |
 | `scripts/win/focus.ps1` | Reliable window focus |
@@ -212,14 +237,15 @@ Facts these depend on, all learned the hard way:
 
 ```bash
 node scripts/manager/run_decision.js --strategy baseline --dry-run   # decide, don't act
-node scripts/manager/run_decision.js --mode cheat                    # full loop, Qwen
+node scripts/manager/run_decision.js --mode cheat                    # full lineup loop, Qwen
+node scripts/manager/advance_until_progress.js                       # advance until time moves or FM requires a decision
 ```
 Needs FM running with the save loaded, and `ollama serve` for the model paths
 (`C:\Users\User\AppData\Local\Programs\Ollama\ollama.exe` — it is **not** on PATH).
 
 ## Saves
 
-- Live save: `Documents/Sports Interactive/Football Manager 2021/games/Claude Anthropic - Aston Villa.fm`, saved 2026-08-16 16:29 (still 4 Oct 2020 — the game has never been advanced).
+- Live save on disk: `Documents/Sports Interactive/Football Manager 2021/games/Claude Anthropic - Aston Villa.fm`, saved 2026-08-16 16:29 at 4 Oct 2020. The current **running process** was advanced during the 2026-09-09 investigation to 5 Oct 2020 15:15; that live progress has not been claimed as a new disk-save baseline.
 - Backups: `D:\projectbielsa-save-backup\` — `2026-08-15-2323\`,
   `2026-08-16-0035-eod\`, `2026-08-16-1215-phase2\`, and
   `2026-08-16-1629-loop-working\` (most recent).
