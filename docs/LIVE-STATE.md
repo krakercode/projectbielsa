@@ -59,6 +59,26 @@ first drag as the calibration.
 
 Return chain observed from `1440BCF1D`: `1440DB515` → `1440BE24A` → `1455A87E3`.
 
+### Durable RTTI / vtable anchors found 2026-09-09
+
+These are module-relative addresses in the current FM21 executable, so they are
+restart-safe in the same way as the code offsets above. They identify **classes**,
+not the one authoritative live object.
+
+| Vtable offset | RTTI class | Use |
+| --- | --- | --- |
+| `fm.exe+0x67A4D58`, `+0x67A4EA8`, `+0x67A4EE8` | `CURRENT_GAME_DATE_WIDGET` | Route into the UI date object graph; date is not inline in the widget. |
+| `fm.exe+0x68ACAF8`, `+0x68ACB18`, `+0x68ACC10` | `SI_DATE_TYPED_TRAITS@fmdate` | Date infrastructure / typed traits. |
+| `fm.exe+0x68A2AE0`, `+0x68A2C30`, `+0x68A2C70` | `MATCH_SCORE_TIME_PANEL@fmmatchviewer` | Strong match-clock target once a live match exists. |
+| `fm.exe+0x6494A30` | `GAME_MATCH` | Match object family target. |
+| `fm.exe+0x6882188` | `MATCH@simatch` | Match simulation object family target. |
+| `fm.exe+0x657B5B0` | `GAME_MATCH_SESSION` | Match-session target. |
+| `fm.exe+0x68970A0` | `MATCH_SESSION@fmmatchviewer` | Viewer/session target. |
+| `fm.exe+0x690BE28` | `GAME_TEAM_COMP_STATS` | **False clock lead.** Do not interpret its apparent 21/15 fields as time. |
+
+Use `scripts/win/rtti.ps1` to prove a live vtable's class before assigning meaning
+to nearby values. Matching integers alone are not enough.
+
 ## Durable: structural offsets
 
 | Offset | Meaning |
@@ -133,6 +153,24 @@ which is exactly why those are the durable asset.
 
 ---
 
+## Perishable: 2026-09-09 game-date investigation snapshot
+
+The live `CURRENT_GAME_DATE_WIDGET` object was observed around `0x8F6EC460` in
+this process. **That is a heap address and must not be reused after a restart.**
+The durable part is the widget's module-relative vtable anchors above.
+
+A 4 Oct 2020 scan found 1,934 copies of the candidate packed date value
+`0x07E45916`. The high 16 bits are 2020 and the low part is consistent with the
+calendar position of 4 October in a leap year, but this representation is still
+only a **candidate encoding**, not a proven current-game-date owner.
+
+The 1,934 contexts were reduced to 49 distinct nearby FM vtable families. Those
+families still need RTTI classification. Do not solve this by picking whichever
+copy sits closest to a plausible-looking integer; that exact mistake produced the
+`GAME_TEAM_COMP_STATS` false lead.
+
+---
+
 ## The tooling (all CE-free, all read-only on memory)
 
 **Nothing below needs a hardcoded address.** Everything anchors on
@@ -149,6 +187,7 @@ data and identical across restarts.
 | `scripts/manager/tactic.js` | Slot names/order/geometry — single source of truth |
 | `scripts/manager/prompts.js` | Prompt scaffolds per decision event |
 | `scripts/win/scan_mem.ps1` | Multi-pattern scan over writable memory — 2.4 GB in ~5.5 s |
+| `scripts/win/rtti.ps1` | Resolve an FM vtable pointer to its MSVC RTTI class name; read-only. |
 | `scripts/win/read_mem.ps1`, `dump_many.ps1` | Read memory; page-tolerant, zero-fill unmapped |
 | `scripts/win/click.ps1` | Synthetic mouse via `SendInput`; `-Drag` for list-row drags |
 | `scripts/win/focus.ps1` | Reliable window focus |

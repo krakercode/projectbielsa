@@ -4,7 +4,7 @@ Sessions start cold, so this is the "what's next" list. `PLAN.md` is strategy,
 `docs/session-log/` is history, this is the queue. **Keep it current** — move
 items to Done with the commit that closed them, and delete stale entries.
 
-Last updated: 2026-09-09 (agentic strategy exercised; decision-cost analysis added)
+Last updated: 2026-09-09 (game-date RTTI investigation added; authoritative date still open)
 
 > **Before using any hex address from a session log, read `docs/LIVE-STATE.md`.**
 > Code addresses (`fm.exe+...`) survive restarts; every heap address from the
@@ -127,6 +127,18 @@ Remaining on the loop:
 
 ## Next up
 
+- [ ] **Reliable game-advance signal — CURRENT FRONTIER.** Memory-first work on
+      2026-09-09 found a likely packed date representation (`0x07E45916` for
+      4 Oct 2020), but there are 1,934 live copies, so the value alone is not an
+      authority signal. `scripts/win/rtti.ps1` now resolves live FM vtables to
+      MSVC RTTI class names; this reduced the date-copy contexts to 49 nearby
+      class/vtable families. **Do not use the apparent 21/15 fields near
+      `fm.exe+0x690BE28`: RTTI proves those 0x110-byte objects are
+      `GAME_TEAM_COMP_STATS`, not clocks.** Live `CURRENT_GAME_DATE_WIDGET`
+      instances exist, but the date is not inline in the widget. Next: classify
+      the 49 families, follow the widget's source, then advance FM and verify the
+      chosen value changes exactly as expected. See
+      `docs/session-log/2026-09-09-game-date-rtti.md`.
 - [x] **League table — render loop FOUND, league position readable.**
       `fm.exe+1455A87E3`, `RBX` = club, visited in exact table order 1st→20th.
       See `docs/phase1-notes.md` and
