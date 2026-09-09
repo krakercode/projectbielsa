@@ -4,7 +4,7 @@ Sessions start cold, so this is the "what's next" list. `PLAN.md` is strategy,
 `docs/session-log/` is history, this is the queue. **Keep it current** — move
 items to Done with the commit that closed them, and delete stale entries.
 
-Last updated: 2026-08-16 (table render loop found; Phase 2 is next)
+Last updated: 2026-09-09 (agentic strategy exercised; decision-cost analysis added)
 
 > **Before using any hex address from a session log, read `docs/LIVE-STATE.md`.**
 > Code addresses (`fm.exe+...`) survive restarts; every heap address from the
@@ -21,9 +21,9 @@ in both modes. See `docs/manager-setup.md`.
 - [ ] **Second model** — the Phase 4 exit criterion is the same task through two
       adapters. `ClaudeProvider` is a stub that throws. Hosted model + API key,
       or a second local model.
-- [ ] **Exercise the `tools` (agentic loop) strategy at least once.** It is
-      written but has never run — untested code, which is the exact failure mode
-      that bit this project before.
+- [x] **Exercise the `tools` (agentic loop) strategy at least once.** Verified
+      2026-09-09 with `qwen3:8b`: valid XI, 2489 input / 162 output tokens,
+      4.06 s decision latency.
 - [ ] **Replace the placeholder human-mode masking.** It buckets true CA, which
       still leaks ordering. Marked `masking: "placeholder-not-phase5"` in the
       data. Do not publish anything off it.
@@ -116,9 +116,12 @@ into one autonomous run. That is PLAN.md's Phase 4 exit criterion.
       measurable.
 
 Remaining on the loop:
-- [ ] **Exercise the `tools` (agentic) strategy at least once** — still never run.
-- [ ] **Cost per decision** is now logged (tokens + wall clock); actually analyse
-      it before committing to the 2×2 grid.
+- [x] **Exercise the `tools` (agentic) strategy at least once** — verified
+      2026-09-09 with `qwen3:8b`; valid on the first attempt.
+- [x] **Analyse cost per decision.** `scripts/manager/analyse_costs.js` summarises
+      the decision log. Current successful Qwen one-shot calls average 2260 input
+      / 226 output tokens and 5.09 s decision latency; the one tools run was
+      2489 / 162 tokens and 4.06 s. Full verified model loop observed: 85.77 s.
 - [ ] The loop is tied to one tactic — `tactic.js` describes 4-3-3 DM Wide and the
       formation is not read from the game.
 
