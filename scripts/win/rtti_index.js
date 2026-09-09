@@ -78,7 +78,7 @@ for (const s of sections) {
     if (!name) continue;
     const colRva = rawToRva(o);
     if (colRva === null || buf.readUInt32LE(o + 20) !== (colRva >>> 0)) continue;
-    cols.set(imageBase + BigInt(colRva), { name, colRva });
+    cols.set(imageBase + BigInt(colRva), { name, colRva, objectOffset: buf.readUInt32LE(o + 4), cdOffset: buf.readUInt32LE(o + 8) });
   }
 }
 
@@ -93,7 +93,7 @@ for (const s of sections) {
     if (!col) continue;
     const vtRva = rawToRva(o + 8);
     if (vtRva === null) continue;
-    rows.push({ name: col.name, vtable_rva: `0x${vtRva.toString(16)}`, vtable: `0x${(imageBase + BigInt(vtRva)).toString(16)}` });
+    rows.push({ name: col.name, object_offset: col.objectOffset, cd_offset: col.cdOffset, vtable_rva: `0x${vtRva.toString(16)}`, vtable: `0x${(imageBase + BigInt(vtRva)).toString(16)}` });
   }
 }
 rows.sort((a, b) => a.name.localeCompare(b.name) || a.vtable.localeCompare(b.vtable));

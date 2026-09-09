@@ -176,21 +176,37 @@ the GAME vtable, and returns this fingerprint without memory writes.
 navigation control until that fingerprint changes. A MUST RESPOND screen is a
 safe stop: the script does not click response buttons, and returns no-progress.
 
-### Required-response RTTI index
+### Required-response RTTI index and live press-response path
 
 `scripts/win/rtti_index.js` parses MSVC RTTI directly from the on-disk `fm.exe`
-and maps semantic class-name families to durable vtable RVAs. It does not attach
-to the game and does not read or write process memory. On this build,
-`--contains RESPONSE` yields **352 vtables**. Relevant concrete classes include
-`TRANSFER_OFFER_RESPONSE`, `TRANSFER_NEGOTIATION_RESPONSE`,
-`TRANSFER_OFFER_CONFIRMATION_RESPONSE`, squad-selection and registration
-responses, press-conference responses, work-permit responses, and many others.
+and maps semantic class-name families to durable vtable RVAs. It now also emits
+the MSVC CompleteObjectLocator `object_offset` / `cd_offset`, which lets a
+reader distinguish the primary vtable (`object_offset == 0`) from secondary
+base-class vtables without relying on one process's heap layout. On this build,
+`--contains RESPONSE` yields **352 vtables**.
 
-This is the intended route for the next dispatcher: when the authoritative GAME
-fingerprint stops, generate the response-vtable set statically, scan those values
-in live writable memory, and determine which response class is active. Screen
-inspection may still be used to validate a newly decoded class once; it is not
-the observation layer for the running evaluation loop.
+`scripts/manager/find_responses.js` turns that static index into one live scan
+of writable FM memory. Raw presence is not enough — stale generations survive —
+so current interaction objects must still be isolated by lifetime/differential
+behaviour. In the Leicester pre-match press conference this exposed the current
+`INTERACTION_GROUPED_RESPONSE_SELECTOR_PANEL` / response-widget generation.
+
+The first fully decoded press-response path is now:
+`INTERACTION_RESPONSE_WIDGET` primary vtable → widget `+0x1A0` BUTTON →
+BUTTON `+0x1B0` text handle → UTF-8 text at `handle+4`. Widget floats at
+`+0x5C/+0x60/+0x64/+0x68` are x/y/width/height. `read_press_choices.js`
+validates the primary widget and BUTTON vtables, reads all choices, sorts by x,
+and returns text plus safe centre-click coordinates. It reproduced five live
+choices on two consecutive questions. Qwen selected the first answer on question
+one and SendInput applied the action using only those memory-derived coordinates.
+
+`PRESS_CONFERENCE_EDIT_SESSION` is also a real semantic owner: the live object
+contains an 8-element `PRESS_CONFERENCE_QUESTION` vector and a 13-element
+`PRESS_CONFERENCE_JOURNALIST` vector matching the meeting. After answering the
+first question, only three bytes changed in its first 2 KiB; notably `+0xE0`
+changed **0 → 1**, a strong current-progress/answered-count lead. The remaining
+press-conference blocker is to identify the active question and resolve its text
+from that object graph generically. Screenshots remain validation-only.
 
 ---
 
@@ -220,6 +236,8 @@ data and identical across restarts.
 | --- | --- |
 | `scripts/manager/run_decision.js` | **The loop**: read live → decide → apply → verify → log |
 | `scripts/manager/advance_until_progress.js` | Click only top-right navigation until authoritative GAME time moves; stops safely on MUST RESPOND |
+| `scripts/manager/find_responses.js` | Build RESPONSE vtable set from RTTI and scan live writable memory for instances |
+| `scripts/manager/read_press_choices.js` | Read live press-conference choice text + button geometry from memory; no screenshot input |
 | `scripts/manager/read_squad.js` | Live squad read, ~6 s from cold, no Cheat Engine |
 | `scripts/manager/pick_lineup.js` | The decision event; `--strategy baseline` is model-free |
 | `scripts/manager/set_lineup.js` | Apply an XI by driving the tactics UI, then verify |
@@ -228,9 +246,10 @@ data and identical across restarts.
 | `scripts/manager/prompts.js` | Prompt scaffolds per decision event |
 | `scripts/win/scan_mem.ps1` | Multi-pattern scan over writable memory — 2.4 GB in ~5.5 s |
 | `scripts/win/rtti.ps1` | Resolve a live FM vtable pointer to its MSVC RTTI class name; read-only. |
-| `scripts/win/rtti_index.js` | Parse on-disk fm.exe RTTI into semantic class/vtable sets; `--contains RESPONSE` finds 352 response-family vtables |
+| `scripts/win/rtti_index.js` | Parse on-disk fm.exe RTTI into semantic class/vtable sets, including primary/secondary object offsets; `--contains RESPONSE` finds 352 response-family vtables |
 | `scripts/win/read_game_time.ps1` | Follow the static GAME root and return the validated live progress fingerprint |
 | `scripts/win/read_mem.ps1`, `dump_many.ps1` | Read memory; page-tolerant, zero-fill unmapped |
+| `scripts/win/walk_ptrs.ps1` | Read-only bounded pointer-graph exploration helper for opaque live FM objects |
 | `scripts/win/click.ps1` | Synthetic mouse via `SendInput`; `-Drag` for list-row drags |
 | `scripts/win/focus.ps1` | Reliable window focus |
 
@@ -262,7 +281,7 @@ Needs FM running with the save loaded, and `ollama serve` for the model paths
 
 ## Saves
 
-- Live save on disk: `Documents/Sports Interactive/Football Manager 2021/games/Claude Anthropic - Aston Villa.fm`, saved 2026-08-16 16:29 at 4 Oct 2020. The current **running process** was advanced during the 2026-09-09 investigation to at least 12 Oct 2020 13:00; that live progress has not been claimed as a new disk-save baseline. During this disposable live run, Qwen negotiated and then accepted a Watford offer for Aaron Ramsey, and FM completed the transfer.
+- Live save on disk: `Documents/Sports Interactive/Football Manager 2021/games/Claude Anthropic - Aston Villa.fm`, saved 2026-08-16 16:29 at 4 Oct 2020. The current **running process** was advanced during the 2026-09-09 investigation to at least 16 Oct 2020 12:15 and is inside the Leicester pre-match press conference; that live progress has not been claimed as a new disk-save baseline. During this disposable live run, Qwen negotiated and then accepted a Watford offer for Aaron Ramsey, and FM completed the transfer.
 - Backups: `D:\projectbielsa-save-backup\` — `2026-08-15-2323\`,
   `2026-08-16-0035-eod\`, `2026-08-16-1215-phase2\`, and
   `2026-08-16-1629-loop-working\` (most recent).

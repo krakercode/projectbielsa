@@ -4,7 +4,7 @@ Sessions start cold, so this is the "what's next" list. `PLAN.md` is strategy,
 `docs/session-log/` is history, this is the queue. **Keep it current** — move
 items to Done with the commit that closed them, and delete stale entries.
 
-Last updated: 2026-09-09 (authoritative GAME clock verified; required-response RTTI dispatch is current frontier)
+Last updated: 2026-09-09 (press-conference choices now read/actioned from memory; active-question reader is current frontier)
 
 > **Before using any hex address from a session log, read `docs/LIVE-STATE.md`.**
 > Code addresses (`fm.exe+...`) survive restarts; every heap address from the
@@ -136,17 +136,18 @@ Remaining on the loop:
       `scripts/win/read_game_time.ps1`; it validates the GAME vtable before
       returning the fingerprint.
 - [ ] **Required-response/event dispatch — CURRENT FRONTIER.**
-      The first real transfer-response chain was exercised live: Qwen negotiated
-      Watford's Aaron Ramsey offer to £200K upfront, then accepted Watford's
-      improved £250K non-negotiable counter; FM later completed the transfer.
-      This proved the manager can make sequential football decisions while the
-      GAME clock is the independent progress signal. `scripts/win/rtti_index.js`
-      now parses `fm.exe` statically and found **352 RESPONSE-family vtables**,
-      including transfer, squad-selection, registration and press-conference
-      response classes. Next: scan those vtables in live writable memory when
-      GAME time is blocked, identify the active response object by differential
-      behaviour, and dispatch it without screen-reading as the state source. See
-      `docs/session-log/2026-09-09-required-response-rtti.md`.
+      `find_responses.js` now turns the static RTTI index into a live writable-
+      memory response scan. During the Leicester pre-match press conference,
+      differential RTTI scanning isolated the current interaction generation.
+      `read_press_choices.js` then resolved all five live response choices from
+      memory: response-widget → BUTTON → text handle, plus the BUTTON geometry.
+      Qwen chose the first answer and the action was applied with SendInput using
+      those memory-derived coordinates; the next question's five choices were
+      immediately read the same way. `PRESS_CONFERENCE_EDIT_SESSION` also owns
+      an 8-question vector and 13-journalist vector, and +0xE0 changed 0→1 after
+      the first answer. **Next:** identify the active question and read its text
+      generically from memory, then wrap question+choices+action in the dispatcher.
+      See `docs/session-log/2026-09-09-press-conference-memory-path.md`.
 - [x] **League table — render loop FOUND, league position readable.**
       `fm.exe+1455A87E3`, `RBX` = club, visited in exact table order 1st→20th.
       See `docs/phase1-notes.md` and
