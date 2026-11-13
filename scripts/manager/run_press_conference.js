@@ -1,16 +1,17 @@
 #!/usr/bin/env node
 // Experimental press-conference controller.
 // State/choices/button geometry come from fm.exe memory; actions use SendInput.
-// Until question text is decoded, model answering requires --allow-choice-only.
+// The event payload (question text + choices) comes from events/press_conference.js.
+// If the question text cannot be read, it refuses unless --allow-choice-only (RE only).
 const { execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const { OllamaProvider } = require('./provider');
+const pressEvent = require('./events/press_conference');
 
 const REPO = path.resolve(__dirname, '..', '..');
 const PS = 'powershell.exe';
 const STATE = path.join(__dirname, 'read_press_state.js');
-const CHOICES = path.join(__dirname, 'read_press_choices.js');
 const BUTTONS = path.join(__dirname, 'read_ui_buttons.js');
 const CLICK = path.join(REPO, 'scripts', 'win', 'click.ps1');
 const FOCUS = path.join(REPO, 'scripts', 'win', 'focus.ps1');
@@ -45,22 +46,28 @@ function exactButton(buttons,text) {
 
 async function answerQuestion(provider,profile,state) {
   if(!state.current_question) throw new Error('answerQuestion called without current question');
-  if(!ALLOW_CHOICE_ONLY) {
-    throw new Error('current question text is not decoded; refusing choice-only model decision (use --allow-choice-only only for RE experiments)');
+  const event=pressEvent.detect(pressEvent.liveReaders());
+  if(!event) throw new Error('semantic state says question is active but the press event did not detect it');
+  if(!event.payload.choices.length) throw new Error('semantic state says question is active but no response choices were found');
+  let call;
+  if(event.ready) {
+    call=pressEvent.prompt(event,profile);
+  } else if(ALLOW_CHOICE_ONLY) {
+    // RE-only path from 2026-09-09: answer text without the question. Never an evaluation condition.
+    const optionText=event.payload.choices.map(c=>`${c.index}: ${c.text}`).join('\n');
+    call={eventType:'press_conference_answer',
+      systemPrompt:`You are managing Aston Villa in Football Manager 2021. Manager profile: ${profile.name}; `+
+        `risk tolerance ${profile.risk_tolerance}; tactical philosophy ${profile.tactical_philosophy}. `+
+        `Choose the press response yourself.`,
+      initialContext:`Live pre-match press conference. FM question object ${state.current_question.id}. `+
+        `Question text is not yet decoded; this RE-only run must choose from the answer texts.\n${optionText}\n`+
+        `Reply JSON only: {"index":0,"reasoning":"brief reason"}`};
+  } else {
+    throw new Error(`refusing to answer: ${event.blocked_reason} (use --allow-choice-only only for RE experiments)`);
   }
-  const choices=parseJson(node(CHOICES,['--json']));
-  if(!choices.count) throw new Error('semantic state says question is active but no response choices were found');
-  const optionText=choices.choices.map((c,i)=>`${i}: ${c.text}`).join('\n');
-  const systemPrompt=`You are managing Aston Villa in Football Manager 2021. Manager profile: ${profile.name}; `+
-    `risk tolerance ${profile.risk_tolerance}; tactical philosophy ${profile.tactical_philosophy}. `+
-    `Choose the press response yourself.`;
-  const initialContext=`Live pre-match press conference. FM question object ${state.current_question.id}. `+
-    `Question text is not yet decoded; this RE-only run must choose from the five answer texts.\n${optionText}\n`+
-    `Reply JSON only: {"index":0,"reasoning":"brief reason"}`;
-  const result=await provider.decide({eventType:'press_conference_answer',systemPrompt,initialContext,strategy:'oneshot'});
-  const idx=Number(result.decision?.index);
-  if(!Number.isInteger(idx)||idx<0||idx>=choices.count) throw new Error(`invalid model choice ${idx}`);
-  const chosen=choices.choices[idx];
+  if(event.ready) console.log(`[${state.answered_count+1}] Q: ${event.payload.question_text}`);
+  const result=await provider.decide({...call,strategy:'oneshot'});
+  const chosen=pressEvent.resolveDecision(event,result.decision);
   console.log(`[${state.answered_count+1}] ${chosen.text}`);
   console.log(`    ${result.decision?.reasoning||''}`);
   clickPoint(chosen.click);
@@ -68,10 +75,11 @@ async function answerQuestion(provider,profile,state) {
   const after=pressState();
   const verified=after.answered_count>state.answered_count ||
     after.current_question?.address!==state.current_question.address;
-  appendLog({eventType:'press_conference_answer',model:result.model,strategy:result.strategy,
-    state,choices:choices.choices.map(c=>c.text),decision:result.decision,tokens:result.tokens,
-    wallClockMs:result.wallClockMs,applied:true,verified,click:chosen.click,after_state:after,
-    caveat:'question text unavailable; choice-only RE run'});
+  appendLog({eventType:event.ready?'press_conference_question':'press_conference_answer',model:result.model,
+    strategy:result.strategy,state,event:{payload:event.payload,provenance:event.provenance},
+    decision:result.decision,tokens:result.tokens,wallClockMs:result.wallClockMs,applied:true,verified,
+    click:chosen.click,after_state:after,
+    caveat:event.ready?null:'question text unavailable; choice-only RE run'});
   if(!verified) throw new Error('press answer click did not advance semantic press state');
 }
 

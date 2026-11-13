@@ -4,7 +4,7 @@ Sessions start cold, so this is the "what's next" list. `PLAN.md` is strategy,
 `docs/session-log/` is history, this is the queue. **Keep it current** — move
 items to Done with the commit that closed them, and delete stale entries.
 
-Last updated: 2026-09-09 (press-conference choices now read/actioned from memory; active-question reader is current frontier)
+Last updated: 2026-11-13 (question-text reader + between-match dispatcher written offline; awaiting first live run)
 
 > **Before using any hex address from a session log, read `docs/LIVE-STATE.md`.**
 > Code addresses (`fm.exe+...`) survive restarts; every heap address from the
@@ -153,6 +153,18 @@ Remaining on the loop:
       `--allow-choice-only` path is RE-only. Next: decode question text, then fold
       this event into the generic dispatcher and continue into Leicester/Phase 3.
       See `docs/session-log/2026-09-09-press-conference-memory-path.md`.
+      - **2026-11-13 (offline, NOT live-verified):** `read_press_question.js`
+        discovers the question text by walking a bounded pointer graph from the
+        current `PRESS_CONFERENCE_QUESTION` and live interaction panels, and fails
+        closed unless exactly one question-like string survives. Folded into
+        `between_match_events.js` as its first handler (`events/press_conference.js`);
+        `run_press_conference.js` now answers with the question text and only falls
+        back to `--allow-choice-only` explicitly. **Next live step:** in the next
+        press conference run `node scripts/manager/read_press_question.js --discover`,
+        confirm the text on screen once, then put the winning path in
+        `PINNED_PATHS`. The current save is past the Leicester pre-match press
+        conference, so this needs the next one (post-match or next fixture).
+        See `docs/session-log/2026-11-13-press-question-reader.md`.
 - [x] **League table — render loop FOUND, league position readable.**
       `fm.exe+1455A87E3`, `RBX` = club, visited in exact table order 1st→20th.
       See `docs/phase1-notes.md` and
